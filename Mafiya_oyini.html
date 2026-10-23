@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mafia Noir</title>
+<style>
+/* ===================== MAFIA NOIR — dizayn tokenlari ===================== */
+:root{
+  --obsidian:#080A0F; --graphite:#111722; --midnight:#101D31;
+  --panel:#0d121b; --panel-2:#141c29;
+  --silver:#C8D1DE; --blue:#4D9FFF; --bordo:#8F2638; --bordo-hi:#c4475d;
+  --text:#e6ebf2; --muted:#8a95a7; --faint:#5d6778;
+  --line:rgba(200,209,222,.10); --line-2:rgba(200,209,222,.20);
+  --ok:#6cbf95; --warn:#d6a755;
+  --f-display:"Didot","Bodoni 72","Bodoni MT","Playfair Display","Libre Bodoni",Georgia,"Times New Roman",serif;
+  --f-body:"Avenir Next","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;
+  --r:6px; --ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--obsidian);color:var(--text);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+   radial-gradient(1200px 600px at 75% -10%, rgba(16,29,49,.95), transparent 60%),
+   radial-gradient(900px 500px at -10% 110%, rgba(143,38,56,.10), transparent 60%),
+   linear-gradient(180deg, #0a0d14, var(--obsidian));}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+#app{position:relative;z-index:1;min-height:100%;padding:24px max(16px,3vw)}
+h1,h2,h3{margin:0;font-weight:400;text-wrap:balance}
+p{margin:0}
+.ico{display:inline-flex;width:18px;height:18px;flex:none}
+.ico svg{width:100%;height:100%}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.serif{font-family:var(--f-display)}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line-2),transparent);border:0;margin:0}
+
+/* ---------- tugmalar ---------- */
+.btn{appearance:none;border:1px solid var(--line-2);background:rgba(200,209,222,.04);color:var(--text);
+  font:inherit;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:11px 18px;border-radius:var(--r);cursor:pointer;display:inline-flex;align-items:center;gap:10px;justify-content:center;
+  transition:background .2s var(--ease),border-color .2s var(--ease),color .2s,transform .15s var(--ease)}
+.btn:hover{border-color:rgba(200,209,222,.4);background:rgba(200,209,222,.08)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--silver);color:var(--obsidian);border-color:var(--silver)}
+.btn.primary:hover{background:#dde3ec}
+.btn.danger{border-color:rgba(196,71,93,.55);color:#f0b6c0;background:rgba(143,38,56,.18)}
+.btn.danger:hover{background:rgba(143,38,56,.32)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:rgba(200,209,222,.06)}
+.btn.sm{padding:7px 11px;font-size:11px}
+.btn.lg{padding:15px 28px;font-size:14px}
+.btn.icon{padding:8px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+input,select{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:10px 12px;min-width:0}
+input:focus,select:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(77,159,255,.18)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);padding:0}
+label{cursor:pointer}
+
+/* ---------- umumiy panel ---------- */
+.panel{background:linear-gradient(180deg,rgba(20,28,41,.72),rgba(13,18,27,.82));border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 20px 50px -20px rgba(0,0,0,.7);backdrop-filter:blur(6px)}
+.page{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.page-head h1{font-family:var(--f-display);font-size:clamp(28px,4vw,40px);letter-spacing:.01em}
+.wordmark-sm{font-family:var(--f-display);letter-spacing:.32em;font-size:13px;color:var(--silver)}
+.wordmark-sm b{color:var(--bordo-hi);font-weight:400}
+
+/* ---------- bosh menyu ---------- */
+.menu{min-height:calc(100vh - 48px);display:grid;place-items:center;text-align:center}
+.menu-inner{display:flex;flex-direction:column;align-items:center;gap:28px;animation:rise .9s var(--ease) both}
+.wordmark{font-family:var(--f-display);font-size:clamp(54px,11vw,120px);line-height:.9;letter-spacing:.06em;color:var(--silver);
+  text-shadow:0 0 60px rgba(77,159,255,.15)}
+.wordmark span{display:block;font-size:.34em;letter-spacing:1.1em;margin-right:-1.1em;color:var(--bordo-hi);margin-top:14px}
+.motto{font-family:var(--f-display);font-style:italic;font-size:20px;color:var(--muted);letter-spacing:.04em}
+.menu-actions{display:flex;flex-direction:column;gap:10px;width:min(320px,100%)}
+.menu-actions .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.menu-foot{font-size:12px;color:var(--faint);max-width:420px}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ---------- sozlash ---------- */
+.setup-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px}
+@media (max-width:900px){.setup-grid{grid-template-columns:1fr}}
+.section{padding:22px;display:flex;flex-direction:column;gap:16px}
+.section h3{font-family:var(--f-display);font-size:22px}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
+.stepper button{background:transparent;border:0;color:var(--text);width:38px;height:38px;cursor:pointer;font-size:18px}
+.stepper button:hover{background:rgba(200,209,222,.08)}
+.stepper button:disabled{opacity:.3;cursor:not-allowed}
+.stepper output{min-width:46px;text-align:center;font-family:var(--f-mono);font-size:18px}
+.role-rows{display:flex;flex-direction:column}
+.role-row{display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.role-row:first-child{border-top:0}
+.role-row .rname{font-weight:600}
+.role-row .rteam{font-size:12px;color:var(--muted)}
+.medal{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-2);color:var(--silver);background:radial-gradient(circle at 30% 25%,rgba(200,209,222,.12),transparent 70%)}
+.medal.mafia{color:#f2b7c1;border-color:rgba(196,71,93,.5);background:radial-gradient(circle at 30% 25%,rgba(143,38,56,.4),transparent 70%)}
+.medal.sheriff{color:#a9cdff;border-color:rgba(77,159,255,.45)}
+.medal.doctor{color:#b7e4cf;border-color:rgba(108,191,149,.45)}
+.medal .ico{width:20px;height:20px}
+.sum-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--line);font-size:14px}
+.sum-line.ok{border-color:rgba(108,191,149,.4);color:#bfe6d1}
+.sum-line.bad{border-color:rgba(196,71,93,.55);color:#f3c2ca;background:rgba(143,38,56,.12)}
+.errors{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.errors li{font-size:13px;color:#f3c2ca;padding-left:16px;position:relative}
+.errors li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;background:var(--bordo-hi);transform:rotate(45deg)}
+.names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.names{grid-template-columns:1fr}}
+.name-field{display:flex;align-items:center;gap:8px}
+.name-field .seat{font-family:var(--f-mono);color:var(--faint);width:22px;text-align:right;font-size:12px}
+.name-field input{flex:1;width:100%}
+.field{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:0}
+.field .fl{display:flex;flex-direction:column;gap:2px;min-width:0}
+.field .fl span{font-size:12px;color:var(--muted)}
+.field select{min-width:150px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.actions .grow{flex:1}
+.notice{font-size:13px;color:var(--muted);border-left:2px solid var(--blue);padding:4px 0 4px 12px}
+
+/* ---------- rol ko'rish ---------- */
+.reveal{min-height:calc(100vh - 48px);display:grid;place-items:center}
+.reveal-card{width:min(560px,100%);padding:42px 36px;text-align:center;display:flex;flex-direction:column;gap:22px;align-items:center;animation:rise .5s var(--ease) both}
+.reveal-card h2{font-family:var(--f-display);font-size:clamp(26px,4vw,34px)}
+.reveal-card .lead{color:var(--muted);font-size:16px;max-width:42ch}
+.reveal-card input{width:100%;font-size:18px;text-align:center;padding:14px}
+.progress-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.progress-dots i{width:8px;height:8px;border-radius:50%;background:var(--line-2)}
+.progress-dots i.done{background:var(--silver)}
+.progress-dots i.cur{background:var(--blue);box-shadow:0 0 0 3px rgba(77,159,255,.25)}
+.lock{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-2);color:var(--silver)}
+.lock .ico{width:28px;height:28px}
+.role-card{position:relative;width:min(520px,100%);padding:44px 34px 34px;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;
+  border-radius:14px;border:1px solid var(--line-2);overflow:hidden;animation:flip .6s var(--ease) both;
+  background:linear-gradient(160deg,var(--midnight),var(--obsidian) 70%)}
+.role-card::before{content:"";position:absolute;inset:10px;border:1px solid var(--line);border-radius:8px;pointer-events:none}
+.role-card.mafia{background:linear-gradient(160deg,#2a0d15,var(--obsidian) 72%);border-color:rgba(196,71,93,.5)}
+.role-card.sheriff{background:linear-gradient(160deg,#0f2440,var(--obsidian) 72%);border-color:rgba(77,159,255,.45)}
+.role-card.doctor{background:linear-gradient(160deg,#0f2620,var(--obsidian) 72%);border-color:rgba(108,191,149,.4)}
+.role-card .big-ico{width:76px;height:76px;color:var(--silver)}
+.role-card.mafia .big-ico{color:#f2b7c1}.role-card.sheriff .big-ico{color:#a9cdff}.role-card.doctor .big-ico{color:#b7e4cf}
+.role-card .rtitle{font-family:var(--f-display);font-size:clamp(40px,8vw,58px);letter-spacing:.08em;line-height:1;text-transform:uppercase}
+.role-card .rdesc{color:#c6cfdb;max-width:40ch;font-size:16px}
+.role-card .rteam{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+@keyframes flip{from{opacity:0;transform:perspective(900px) rotateY(-14deg) translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- boshlovchi paneli ---------- */
+.host{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.topbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;padding:12px 16px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 22px;flex:1;min-width:0}
+.stat{display:flex;flex-direction:column;gap:0}
+.stat .k{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.stat .v{font-family:var(--f-mono);font-size:18px;color:var(--text);display:flex;align-items:center;gap:6px}
+.stat .v .ico{width:15px;height:15px;color:var(--muted)}
+.stat.mafia .v{color:#f2b7c1}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.host-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:980px){.host-grid{grid-template-columns:1fr}}
+.stage{padding:30px;min-height:520px;display:flex;flex-direction:column;gap:22px;position:relative;overflow:hidden}
+.stage.night{background:linear-gradient(180deg,rgba(9,14,26,.92),rgba(8,10,15,.95));}
+.stage.night::before{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(77,159,255,.12),transparent 65%);pointer-events:none}
+.stage.day{background:linear-gradient(180deg,rgba(24,33,48,.85),rgba(14,19,28,.9))}
+.stage-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.phase-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.phase-tag .ico{width:16px;height:16px;color:var(--blue)}
+.day .phase-tag .ico{color:var(--warn)}
+.announce{font-family:var(--f-display);font-size:clamp(28px,4.4vw,46px);line-height:1.12;color:var(--silver);letter-spacing:.01em;animation:fadeup .8s var(--ease) both}
+.announce .sub{display:block;font-size:.55em;color:var(--muted);margin-top:12px;font-style:italic}
+.announce.cinema{text-align:center;margin:auto 0;padding:30px 0}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px);letter-spacing:.06em}to{opacity:1;transform:none}}
+.cue{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.cue .ico{color:var(--blue);margin-top:2px}
+.stage-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:auto}
+.stage-actions .grow{flex:1}
+
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pick{appearance:none;font:inherit;text-align:left;cursor:pointer;color:var(--text);background:rgba(200,209,222,.03);border:1px solid var(--line);
+  border-radius:var(--r);padding:11px 12px;display:flex;flex-direction:column;gap:2px;transition:border-color .15s,background .15s}
+.pick:hover:not(:disabled){border-color:var(--line-2);background:rgba(200,209,222,.07)}
+.pick .pn{font-weight:600;overflow-wrap:anywhere}
+.pick .ps{font-size:11px;color:var(--faint);letter-spacing:.06em}
+.pick[aria-pressed="true"]{border-color:var(--blue);background:rgba(77,159,255,.12);box-shadow:0 0 0 1px var(--blue) inset}
+.pick.kill[aria-pressed="true"]{border-color:var(--bordo-hi);background:rgba(143,38,56,.22);box-shadow:0 0 0 1px var(--bordo-hi) inset}
+.pick:disabled{opacity:.35;cursor:not-allowed;text-decoration:none}
+.pick.dead .pn{text-decoration:line-through}
+
+.private{border:1px dashed rgba(77,159,255,.45);border-radius:var(--r);padding:14px 16px;background:rgba(77,159,255,.06);display:flex;flex-direction:column;gap:8px}
+.private .eyebrow{color:#9cc6ff;display:flex;align-items:center;gap:8px}
+.private .verdict{font-family:var(--f-display);font-size:28px;letter-spacing:.06em}
+.private .verdict.is-mafia{color:#f2b7c1}
+.private .verdict.not-mafia{color:#bfe6d1}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:600}
+
+.timer{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.timer .clock{font-family:var(--f-mono);font-size:clamp(44px,7vw,68px);line-height:1;letter-spacing:.02em;color:var(--silver);font-variant-numeric:tabular-nums}
+.timer .clock.low{color:var(--bordo-hi)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer;letter-spacing:.04em}
+.seg button+button{border-left:1px solid var(--line-2)}
+.seg button[aria-pressed="true"]{background:rgba(200,209,222,.12);color:var(--text)}
+
+.vote-wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}
+@media (max-width:700px){.vote-wrap{grid-template-columns:1fr}}
+.vote-list{display:flex;flex-direction:column;gap:6px;max-height:380px;overflow:auto;padding-right:4px}
+.vote-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:10px;align-items:center}
+.vote-row .vn{font-weight:600;overflow-wrap:anywhere;font-size:14px}
+.vote-row select{width:100%;padding:7px 9px;font-size:13px}
+.vote-row.missing select{border-color:rgba(214,167,85,.5)}
+.tally{display:flex;flex-direction:column;gap:8px}
+.tbar{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;align-items:center;font-size:13px}
+.tbar .tn{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tbar .tn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbar .tr{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.tbar .tr i{display:block;height:100%;background:var(--silver);transition:width .25s var(--ease)}
+.tbar.lead .tr i{background:var(--bordo-hi)}
+.tbar .tc{font-family:var(--f-mono);text-align:right}
+.vote-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.vote-meta b{color:var(--text);font-family:var(--f-mono);font-weight:500}
+
+/* o'yinchilar ro'yxati */
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.plist{padding:6px 0}
+.plist-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px}
+.plist-head h3{font-family:var(--f-display);font-size:20px}
+.prow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 16px;border-top:1px solid var(--line)}
+.prow .seat{font-family:var(--f-mono);font-size:12px;color:var(--faint);text-align:right}
+.prow .pmain{display:flex;flex-direction:column;gap:3px;min-width:0}
+.prow .pname{font-weight:600;overflow-wrap:anywhere}
+.prow.out .pname{color:var(--faint);text-decoration:line-through}
+.prow .pmeta{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:3px 7px;border-radius:3px;border:1px solid var(--line-2);color:var(--muted);white-space:nowrap}
+.chip .ico{width:12px;height:12px}
+.chip.r-mafia{color:#f2b7c1;border-color:rgba(196,71,93,.5);background:rgba(143,38,56,.18)}
+.chip.r-sheriff{color:#a9cdff;border-color:rgba(77,159,255,.4)}
+.chip.r-doctor{color:#b7e4cf;border-color:rgba(108,191,149,.4)}
+.chip.alive{color:#bfe6d1;border-color:rgba(108,191,149,.35)}
+.chip.dead{color:var(--faint)}
+.chip.tgt-k{color:#f2b7c1;border-color:var(--bordo-hi)}
+.chip.tgt-d{color:#b7e4cf;border-color:var(--ok)}
+.chip.tgt-s{color:#a9cdff;border-color:var(--blue)}
+.chip.vote{color:var(--silver)}
+.privacy-on .secret{filter:blur(7px);user-select:none}
+.privacy-on .secret-hide{visibility:hidden}
+
+.logs .tabs{display:flex;border-bottom:1px solid var(--line)}
+.logs .tabs button{flex:1;appearance:none;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:12px;cursor:pointer}
+.logs .tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--silver)}
+.loglist{list-style:none;margin:0;padding:8px 16px 14px;max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.loglist li{display:grid;grid-template-columns:42px 1fr;gap:10px}
+.loglist .lr{font-family:var(--f-mono);color:var(--faint);font-size:11px;padding-top:2px}
+.loglist .empty{display:block;color:var(--faint)}
+
+/* ---------- yakun ---------- */
+.end-hero{padding:44px 32px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.end-hero.mafia{background:linear-gradient(170deg,#2a0d15,var(--obsidian) 75%);border-color:rgba(196,71,93,.45)}
+.end-hero.town{background:linear-gradient(170deg,#0f2440,var(--obsidian) 75%);border-color:rgba(77,159,255,.35)}
+.end-hero h1{font-family:var(--f-display);font-size:clamp(36px,6vw,64px);letter-spacing:.04em}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);text-align:left;font-weight:600;padding:12px 16px;border-bottom:1px solid var(--line-2)}
+td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.winner td:first-child{box-shadow:inset 2px 0 0 var(--silver)}
+
+/* ---------- qoidalar ---------- */
+.prose{max-width:72ch;display:flex;flex-direction:column;gap:14px;color:#c9d1dc}
+.prose h3{font-family:var(--f-display);font-size:22px;color:var(--text);margin-top:10px}
+.prose ul,.prose ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+
+/* ---------- modal va xabarlar ---------- */
+.modal-back{position:fixed;inset:0;background:rgba(4,6,10,.72);backdrop-filter:blur(4px);display:grid;place-items:center;z-index:50;padding:16px;animation:fade .2s both}
+.modal{width:min(460px,100%);padding:26px;display:flex;flex-direction:column;gap:16px;animation:rise .3s var(--ease) both}
+.modal h3{font-family:var(--f-display);font-size:24px}
+.modal .body{color:#c6cfdb}
+.modal .actions{justify-content:flex-end}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+#toasts{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;flex-direction:column;gap:8px;max-width:min(380px,calc(100vw - 32px))}
+.toast{padding:12px 14px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--panel-2);font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,.5);animation:rise .3s var(--ease) both}
+.toast.err{border-color:rgba(196,71,93,.6);color:#f3c2ca}
+.toast.warn{border-color:rgba(214,167,85,.55);color:#efd6a5}
+.toast.ok{border-color:rgba(108,191,149,.5);color:#bfe6d1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- ovoz paneli ---------- */
+#sound-dock{position:fixed;left:max(16px,calc(env(safe-area-inset-left,0px) + 12px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:40;
+  display:flex;align-items:center;gap:4px;padding:5px 10px 5px 5px;border-radius:999px}
+.dock-btn{appearance:none;border:0;background:transparent;color:var(--silver);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;cursor:pointer;position:relative}
+.dock-btn:hover{background:rgba(200,209,222,.1)}
+.dock-btn[aria-pressed="false"]{color:var(--faint)}
+.dock-btn[aria-pressed="false"]::after{content:"";position:absolute;width:22px;height:1.6px;background:var(--bordo-hi);transform:rotate(-45deg);border-radius:1px}
+#dock-sound[aria-pressed="false"]::after{display:none}
+#sound-dock.muted-all #dock-music,#sound-dock.muted-all #dock-vol{opacity:.35}
+input[type=range]{appearance:none;-webkit-appearance:none;background:transparent;border:0;padding:0;height:20px;width:96px;box-shadow:none}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--line-2);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--line-2);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--silver);margin-top:-5.5px;border:0}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--silver);border:0}
+.range-wrap{display:flex;align-items:center;gap:10px}
+.range-wrap input[type=range]{width:150px}
+.range-wrap .mono{min-width:4ch;text-align:right;font-size:12px}
+#app{padding-bottom:84px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:600px){#app{padding:16px}.stage{padding:20px;min-height:0}.section{padding:18px}.reveal-card{padding:30px 20px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<div id="sound-dock" class="panel" role="group" aria-label="Ovoz boshqaruvi"></div>
+<input type="file" id="import-file" accept="application/json,.json" class="sr" tabindex="-1" aria-hidden="true">
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   1. YORDAMCHI FUNKSIYALAR
+   ===================================================================== */
+var STORE_SETTINGS = 'mafiaNoir.settings.v1';
+var STORE_GAME = 'mafiaNoir.game.v1';
+var FORMAT_VERSION = 1;
+
+function $(sel, root){ return (root || document).querySelector(sel); }
+
+/* Xavfsiz DOM quruvchi: foydalanuvchi matni har doim textContent orqali kiradi. */
+function h(tag, props){
+  var el = document.createElement(tag);
+  props = props || {};
+  Object.keys(props).forEach(function(k){
+    var v = props[k];
+    if (v === null || v === undefined || v === false) return;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.slice(0,2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === 'value') el.value = v;
+    else if (k === 'checked') el.checked = !!v;
+    else if (v === true) el.setAttribute(k, '');
+    else el.setAttribute(k, String(v));
+  });
+  for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
+  return el;
+}
+function append(el, c){
+  if (c === null || c === undefined || c === false) return;
+  if (Array.isArray(c)) { c.forEach(function(x){ append(el, x); }); return; }
+  el.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+}
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+/* Kriptografik tasodifiylik + Fisher–Yates */
+function randInt(n){
+  if (window.crypto && window.crypto.getRandomValues) {
+    var limit = Math.floor(0x100000000 / n) * n, buf = new Uint32Array(1), x;
+    do { window.crypto.getRandomValues(buf); x = buf[0]; } while (x >= limit);
+    return x % n;
+  }
+  return Math.floor(Math.random() * n);
+}
+function shuffleFY(arr){
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) { var j = randInt(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+var store = {
+  get: function(k){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e){ return null; } },
+  set: function(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+  del: function(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+function fmtTime(sec){ sec = Math.max(0, sec|0); var m = Math.floor(sec/60), s = sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+
+/* Bir xil uslubdagi chiziqli SVG ikonkalar (statik, foydalanuvchi matni yo'q) */
+var ICONS = {
+  mafia:'<path d="M3 15.2c2.6 1.7 5.6 2.5 9 2.5s6.4-.8 9-2.5"/><path d="M6.2 14.6 7.4 8c.2-1.1 1.4-1.7 2.4-1.2L12 7.8l2.2-1c1-.5 2.2.1 2.4 1.2l1.2 6.6"/><path d="M6.8 12.2c3.3 1 7.1 1 10.4 0"/>',
+  doctor:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v9M7.5 12h9"/>',
+  sheriff:'<path d="M12 3.2l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.1 6.9 18.9 8 13.2l-4.3-4 5.8-.7z"/><circle cx="12" cy="11.8" r="1.6"/>',
+  citizen:'<circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5c.6-4 3.6-6.3 7.5-6.3s6.9 2.3 7.5 6.3"/>',
+  moon:'<path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff:'<path d="M2.5 12S6 5.5 12 5.5c2 0 3.7.7 5.1 1.6M21.5 12s-3.5 6.5-9.5 6.5c-2 0-3.7-.7-5.1-1.6"/><path d="M4 4l16 16"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H10"/>',
+  next:'<path d="M5 12h13M13 6l6 6-6 6"/>',
+  back:'<path d="M15 18l-6-6 6-6"/>',
+  shuffle:'<path d="M16 3.5h4.5V8"/><path d="M4 20 20.5 3.5"/><path d="M20.5 16v4.5H16"/><path d="M15 15l5.5 5.5"/><path d="M4 4l5 5"/>',
+  download:'<path d="M12 3.5v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 20.5h14"/>',
+  upload:'<path d="M12 20.5v-11"/><path d="M7.5 13.5 12 9l4.5 4.5"/><path d="M5 3.5h14"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+  book:'<path d="M4.5 5.5A2 2 0 0 1 6.5 3.5h13v15h-13a2 2 0 0 0-2 2z"/><path d="M4.5 20.5v-15"/>',
+  play:'<path d="M7.5 5v14l11-7z"/>',
+  pause:'<path d="M8 5v14M16 5v14"/>',
+  reset:'<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4.5v4.5H8"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.6 3.1-5.6 6.5-5.6s6 2 6.5 5.6"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4"/><path d="M17.8 14.6c2 .6 3.4 2.4 3.7 5.4"/>',
+  ballot:'<path d="M4 11h16v9.5H4z"/><path d="M8.5 11 10 4.5h4l1.5 6.5"/><path d="M9 15.5h6"/>',
+  lock:'<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+  out:'<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>',
+  music:'<path d="M9 18V5.5l11-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  speaker:'<path d="M4 9.5h3.5L12.5 5v14l-5-4.5H4z"/><path d="M16 9a4.5 4.5 0 0 1 0 6M18.6 6.4a8.2 8.2 0 0 1 0 11.2"/>',
+  mute:'<path d="M4 9.5h3.5L12.5 5v14l-5-4.5H4z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/>',
+  bell:'<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/>'
+};
+function icon(name, cls){
+  var s = h('span', {class: 'ico ' + (cls || ''), 'aria-hidden': 'true'});
+  s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || '') + '</svg>';
+  return s;
+}
+function btn(label, opts){
+  opts = opts || {};
+  var b = h('button', {type:'button', class:'btn ' + (opts.cls || ''), onclick: opts.onClick, disabled: opts.disabled, 'aria-label': opts.aria, title: opts.title, 'data-primary': opts.primary ? '1' : null, id: opts.id});
+  if (opts.icon) b.appendChild(icon(opts.icon));
+  if (label) b.appendChild(document.createTextNode(label));
+  return b;
+}
+
+/* =====================================================================
+   2. SOZLAMALAR VA ROLLAR TIZIMI (kengaytirishga qulay)
+   ===================================================================== */
+var DEFAULT_SETTINGS = {
+  extendedRange: false,          // false: 8–12, true: 4–20
+  sheriffName: 'Komissar',       // 'Komissar' | 'Sherif'
+  doctorSelfHeal: true,
+  votingEnabled: true,
+  allMustVote: false,
+  allowAbstain: true,
+  allowSelfVote: false,
+  voteTimer: 60,                 // soniya, 0 = cheklanmagan
+  tieRule: 'revote',             // 'revote' | 'none'
+  revoteEnabled: true,
+  revealRoleOnVote: false,
+  revealRoleOnNight: false,
+  discussionDefault: 120,        // soniya, 0 = cheklanmagan
+  // Ovoz va musiqa
+  soundOn: true,                 // umumiy ovoz
+  musicOn: true,                 // fon musiqasi
+  sfxOn: true,                   // ovoz effektlari
+  uiClicks: true,                // tugma tovushlari
+  timerSounds: true,             // taymer chiqillashi va signali
+  nightMask: true,               // tunda musiqa balandroq (shivir-shivirni yashiradi)
+  notifications: true,           // bildirishnomalar (xatolar doim ko'rinadi)
+  masterVol: 0.8, musicVol: 0.55, sfxVol: 0.85
+};
+
+/*
+  Yangi rol qo'shish uchun shu ro'yxatga bitta obyekt qo'shing:
+  id, team ('mafia' | 'town'), name(), icon, desc(), ixtiyoriy night { order, key, prompt(), confirm, eligible(player, actor) }.
+  Tungi hisob-kitobni kengaytirish uchun resolveNight() funksiyasiga qarang.
+*/
+var ROLES = [
+  { id:'mafia', team:'mafia', icon:'mafia',
+    name: function(){ return 'Mafiya'; },
+    desc: function(){ return 'Sizning vazifangiz — shaharliklar orasida yashirinib qolish va mafiya jamoasining g‘alabasiga erishish. Har tunda sheriklaringiz bilan birga bitta nishon tanlaysiz.'; },
+    night: { order:10, key:'mafiaTarget', confirm:'Tanlovni tasdiqlash', tone:'kill',
+      prompt: function(){ return 'Mafiya tanlagan nishonni belgilang.'; },
+      eligible: function(p){ return p.alive && p.role !== 'mafia'; },
+      blockedNote: function(p){ return p.role === 'mafia' ? 'mafiya a’zosi' : ''; } } },
+  { id:'doctor', team:'town', icon:'doctor',
+    name: function(){ return 'Shifokor'; },
+    desc: function(){ return 'Har tunda bitta o‘yinchini himoya qilasiz. Mafiya aynan shu o‘yinchini tanlasa, u tirik qoladi.' + (S.settings.doctorSelfHeal ? ' O‘zingizni ham davolashingiz mumkin.' : ' O‘zingizni davolay olmaysiz.'); },
+    night: { order:20, key:'doctorTarget', confirm:'Davolashni tasdiqlash', tone:'heal',
+      prompt: function(){ return 'Shifokor davolagan o‘yinchini belgilang.'; },
+      eligible: function(p){ return p.alive && (S.settings.doctorSelfHeal || p.role !== 'doctor'); },
+      blockedNote: function(p){ return p.role === 'doctor' && !S.settings.doctorSelfHeal ? 'o‘zini davolash o‘chirilgan' : ''; } } },
+  { id:'sheriff', team:'town', icon:'sheriff',
+    name: function(){ return S.settings.sheriffName; },
+    desc: function(){ return 'Har tunda bitta o‘yinchini tekshirasiz va u mafiya ekanini yoki emasligini bilib olasiz. Tekshiruv hech kimni o‘yindan chiqarmaydi: kunduzi dalil keltirib, boshqalarni ishontiring. Rolingizni oshkor qilish — sizning strategiyangiz.'; },
+    night: { order:30, key:'sheriffTarget', confirm:'Tekshiruvni tasdiqlash', tone:'check',
+      prompt: function(){ return S.settings.sheriffName + ' tekshirgan o‘yinchini belgilang.'; },
+      eligible: function(p){ return p.alive && p.role !== 'sheriff'; },
+      blockedNote: function(p){ return p.role === 'sheriff' ? 'o‘zini tekshira olmaydi' : ''; } } },
+  { id:'citizen', team:'town', icon:'citizen',
+    name: function(){ return 'Oddiy fuqaro'; },
+    desc: function(){ return 'Sizda tungi harakat yo‘q. Kunduzgi muhokamada kuzatuv va mantiq bilan mafiyani toping va ovoz berishda uni shahardan chiqaring.'; } }
+];
+var TEAM_NAME = { mafia:'Mafiya jamoasi', town:'Shahar jamoasi' };
+function roleDef(id){ for (var i=0;i<ROLES.length;i++) if (ROLES[i].id === id) return ROLES[i]; return null; }
+function roleName(id){ var r = roleDef(id); return r ? r.name() : id; }
+
+function playerRange(){ return S.settings.extendedRange ? [4, 20] : [8, 12]; }
+function defaultCounts(n){
+  var c = {}; ROLES.forEach(function(r){ c[r.id] = 0; });
+  c.mafia = n >= 13 ? 4 : n >= 10 ? 3 : n >= 6 ? 2 : 1;
+  c.sheriff = n >= 5 ? 1 : 0;
+  c.doctor = n >= 5 ? 1 : 0;
+  c.citizen = n - c.mafia - c.sheriff - c.doctor;
+  return c;
+}
+function defaultSetup(n){ return { count:n, counts: defaultCounts(n), names: new Array(n).fill('') }; }
+
+/* =====================================================================
+   3. ILOVA HOLATI
+   ===================================================================== */
+var S = {
+  screen: 'menu',              // menu | rules | settings | setup | reveal | host | end
+  returnTo: 'menu',
+  settings: Object.assign({}, DEFAULT_SETTINGS, store.get(STORE_SETTINGS) || {}),
+  setup: null,
+  players: [],                 // {id, name, role, alive, outRound, outCause}
+  deal: null,                  // {idx, stage, started}
+  game: null,
+  ui: { privacy:false, logTab:'public', pick:null }
+};
+S.setup = defaultSetup(10);
+var undoStack = [];
+
+function saveSettings(){ store.set(STORE_SETTINGS, S.settings); }
+function persist(){
+  if (S.screen === 'reveal' || S.screen === 'host' || S.screen === 'end') {
+    store.set(STORE_GAME, snapshotAll());
+  }
+}
+function snapshotAll(){
+  return { format:'mafia-noir', version:FORMAT_VERSION, savedAt:new Date().toISOString(),
+    screen:S.screen, settings:S.settings, setup:S.setup, players:S.players, deal:S.deal, game:S.game };
+}
+function loadSnapshot(d){
+  if (!d || d.format !== 'mafia-noir' || !Array.isArray(d.players)) throw new Error('Fayl Mafia Noir o‘yin holatiga o‘xshamaydi.');
+  S.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings || {});
+  S.setup = d.setup || defaultSetup(10);
+  S.players = d.players; S.deal = d.deal || null; S.game = d.game || null;
+  S.screen = ['reveal','host','end'].indexOf(d.screen) >= 0 ? d.screen : 'setup';
+  if (S.screen === 'host' && !S.game) S.screen = 'setup';
+  S.ui.pick = null; undoStack = [];
+  saveSettings();
+}
+
+/* Bekor qilish (undo) — o'yin holatining nusxalari */
+function pushUndo(label){
+  undoStack.push({ label: label, players: clone(S.players), game: clone(S.game), screen: S.screen });
+  if (undoStack.length > 60) undoStack.shift();
+}
+function undo(){
+  var s = undoStack.pop();
+  if (!s) { toast('Bekor qilinadigan harakat yo‘q.', 'warn'); return; }
+  S.players = s.players; S.game = s.game; S.screen = s.screen; S.ui.pick = null;
+  timerStop();
+  sfx('undo');
+  toast('Bekor qilindi: ' + s.label + '.', 'ok');
+  render();
+}
+
+/* =====================================================================
+   4. O'YIN MANTIG'I (sof funksiyalarga yaqin)
+   ===================================================================== */
+function alivePlayers(){ return S.players.filter(function(p){ return p.alive; }); }
+function playerById(id){ for (var i=0;i<S.players.length;i++) if (S.players[i].id === id) return S.players[i]; return null; }
+function countRole(role, onlyAlive){ return S.players.filter(function(p){ return p.role === role && (!onlyAlive || p.alive); }).length; }
+function teamOf(p){ var r = roleDef(p.role); return r ? r.team : 'town'; }
+
+function computeWinner(){
+  var alive = alivePlayers();
+  var mafia = alive.filter(function(p){ return teamOf(p) === 'mafia'; }).length;
+  var others = alive.length - mafia;
+  if (mafia === 0) return 'town';
+  if (mafia >= others) return 'mafia';
+  return null;
+}
+
+function setupErrors(){
+  var e = [], st = S.setup, sum = 0;
+  ROLES.forEach(function(r){ sum += st.counts[r.id] || 0; });
+  var range = playerRange();
+  if (st.count < range[0] || st.count > range[1]) e.push('O‘yinchilar soni ' + range[0] + '–' + range[1] + ' oralig‘ida bo‘lishi kerak.');
+  if (sum !== st.count) e.push('Rollar soni (' + sum + ') o‘yinchilar soniga (' + st.count + ') teng emas. ' + (sum > st.count ? (sum - st.count) + ' ta rolni kamaytiring.' : (st.count - sum) + ' ta rol qo‘shing.'));
+  if ((st.counts.mafia || 0) < 1) e.push('Kamida bitta mafiya bo‘lishi shart.');
+  else if (st.counts.mafia >= st.count - st.counts.mafia) e.push('Mafiya soni shahar o‘yinchilaridan kam bo‘lishi kerak, aks holda o‘yin darhol tugaydi.');
+  var seen = {}, dup = [];
+  st.names.forEach(function(n){ var k = (n||'').trim().toLowerCase(); if (!k) return; if (seen[k]) dup.push(n.trim()); seen[k] = true; });
+  if (dup.length) e.push('Ismlar takrorlanmasligi kerak: ' + dup.join(', ') + '.');
+  return e;
+}
+
+function buildRolePool(){
+  var pool = [];
+  ROLES.forEach(function(r){ for (var i=0;i<(S.setup.counts[r.id]||0);i++) pool.push(r.id); });
+  return pool;
+}
+function shuffleAndDeal(){
+  var errs = setupErrors();
+  if (errs.length) { toast(errs[0], 'err'); render(); return; }
+  var roles = shuffleFY(buildRolePool());
+  S.players = roles.map(function(role, i){
+    return { id:i, name:(S.setup.names[i] || '').trim(), role:role, alive:true, outRound:null, outCause:null };
+  });
+  S.deal = { idx:0, stage:'welcome', started:false };
+  S.game = null; undoStack = [];
+  S.screen = 'reveal';
+  sfx('shuffle');
+  render();
+}
+function reshuffle(){
+  if (!S.deal || S.deal.started) { toast('Rollar ko‘rila boshlangan — endi qayta aralashtirib bo‘lmaydi.', 'err'); return; }
+  var roles = shuffleFY(buildRolePool());
+  S.players.forEach(function(p, i){ p.role = roles[i]; });
+  sfx('shuffle');
+  toast('Rollar qayta aralashtirildi.', 'ok');
+}
+
+function newNight(sub){
+  var steps = ROLES.filter(function(r){ return r.night && countRole(r.id) > 0; })
+                   .sort(function(a,b){ return a.night.order - b.night.order; })
+                   .map(function(r){ return r.id; });
+  return { sub: sub || 'idle', steps: steps, i: 0, mafiaTarget:null, doctorTarget:null, sheriffTarget:null, sheriffResult:null, acted:{} };
+}
+function startGame(){
+  if (!S.deal || S.deal.stage !== 'done') { toast('Avval barcha o‘yinchilar rolini ko‘rishi kerak.', 'err'); return; }
+  S.game = { round:1, phase:'night', night:newNight('idle'), day:null, vote:null, publicLog:[], hostLog:[], winner:null, lastRound:1 };
+  hostLog('O‘yin boshlandi. O‘yinchilar: ' + S.players.length + '.');
+  undoStack = [];
+  S.screen = 'host';
+  sfx('gong');
+  render();
+}
+function publicLog(text){ S.game.publicLog.push({ r:S.game.round, p:S.game.phase, t:text }); }
+function hostLog(text){ S.game.hostLog.push({ r:S.game.round, p:S.game.phase, t:text }); }
+
+function eliminate(p, cause){
+  if (!p || !p.alive) return false;
+  p.alive = false; p.outRound = S.game.round; p.outCause = cause;
+  return true;
+}
+
+/* Tun natijasi: oldindan belgilangan, izchil qoidalar */
+function resolveNight(){
+  var n = S.game.night, victim = null, msg;
+  var mt = n.mafiaTarget !== null ? playerById(n.mafiaTarget) : null;
+  if (mt && mt.alive) {
+    if (n.doctorTarget === mt.id) {
+      hostLog('Shifokor ' + mt.name + 'ni qutqardi (mafiya nishoni).');
+    } else {
+      victim = mt;
+    }
+  } else if (n.mafiaTarget !== null) {
+    hostLog('Mafiya nishoni allaqachon o‘yindan chiqqan — harakat bekor qilindi.');
+  } else {
+    hostLog('Mafiya bu tun nishon tanlamadi.');
+  }
+  if (victim) {
+    eliminate(victim, 'night');
+    msg = 'Tong otdi. ' + victim.name + ', siz bu tun o‘yindan chiqdingiz.';
+    hostLog(victim.name + ' (' + roleName(victim.role) + ') tunda o‘yindan chiqdi.');
+  } else {
+    msg = 'Tong otdi. Bu tun hech kim o‘yindan chiqmadi.';
+  }
+  publicLog(msg);
+  return { victim: victim, message: msg };
+}
+
+function tallyVotes(v){
+  var t = {};
+  v.candidates.forEach(function(id){ t[id] = 0; });
+  Object.keys(v.votes).forEach(function(voter){
+    var target = v.votes[voter];
+    if (target !== 'abstain' && t.hasOwnProperty(target)) t[target]++;
+  });
+  return t;
+}
+
+/* =====================================================================
+   5. TAYMER
+   ===================================================================== */
+var T = { total:0, left:0, elapsed:0, unlimited:false, running:false, id:null };
+function timerSet(sec){
+  timerStop(true);
+  T.unlimited = !sec; T.total = sec || 0; T.left = sec || 0; T.elapsed = 0;
+  paintTimer();
+}
+function timerStart(){
+  if (T.running) return;
+  if (!T.unlimited && T.left <= 0) { T.left = T.total; }
+  T.running = true;
+  T.id = setInterval(timerTick, 1000);
+  if (S.settings.timerSounds) sfx('timerStart');
+  paintTimer();
+}
+function timerTick(){
+  if (T.unlimited) T.elapsed++;
+  else {
+    T.left--;
+    if (T.left <= 0) {
+      T.left = 0; timerStop();
+      if (S.settings.timerSounds) sfx('alarm');
+      toast('Vaqt tugadi. Keyingi qadamni boshlovchi hal qiladi.', 'warn');
+    } else if (S.settings.timerSounds && T.left <= 10) {
+      sfx(T.left <= 3 ? 'tickHi' : 'tick');
+    }
+  }
+  paintTimer();
+}
+function timerStop(silent){
+  T.running = false; if (T.id) clearInterval(T.id); T.id = null;
+  if (!silent) paintTimer();
+}
+function paintTimer(){
+  var c = document.querySelector('[data-clock]');
+  if (c) {
+    c.textContent = T.unlimited ? fmtTime(T.elapsed) : fmtTime(T.left);
+    c.classList.toggle('low', !T.unlimited && T.left <= 10 && T.total > 0);
+  }
+  var b = document.querySelector('[data-timer-toggle]');
+  if (b) { b.textContent = ''; b.appendChild(icon(T.running ? 'pause' : 'play')); b.appendChild(document.createTextNode(T.running ? 'To‘xtatish' : 'Boshlash')); }
+}
+
+/* =====================================================================
+   5b. OVOZ VA MUSIQA — Web Audio orqali sintez (fayl va internetsiz)
+   Muhim: rol yoki tekshiruv natijasiga qarab HECH QACHON boshqa ovoz chalinmaydi,
+   aks holda ko'zini yumgan o'yinchilar ovozdan sirni bilib oladi.
+   ===================================================================== */
+var A = { ctx:null, master:null, musicBus:null, duckNode:null, sfxBus:null, mverb:null, sverb:null, delay:null,
+          noiseBuf:null, tracks:[], mode:null, loop:null };
+
+function audioInit(){
+  if (A.ctx) { if (A.ctx.state === 'suspended') { try { A.ctx.resume(); } catch(e){} } return A.ctx; }
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  var c;
+  try { c = new AC(); } catch(e){ return null; }
+  A.ctx = c;
+  var comp = c.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 4; comp.attack.value = 0.01; comp.release.value = 0.25;
+  A.master = c.createGain(); A.master.connect(comp); comp.connect(c.destination);
+  A.duckNode = c.createGain(); A.duckNode.connect(A.master);
+  A.musicBus = c.createGain(); A.musicBus.connect(A.duckNode);
+  A.sfxBus = c.createGain(); A.sfxBus.connect(A.master);
+  var ir = impulse(c, 3.2, 2.4);
+  A.mverb = c.createConvolver(); A.mverb.buffer = ir; A.mverb.connect(A.musicBus);
+  A.sverb = c.createConvolver(); A.sverb.buffer = ir; A.sverb.connect(A.sfxBus);
+  A.delay = c.createDelay(2); A.delay.delayTime.value = 0.46;
+  var fb = c.createGain(); fb.gain.value = 0.34;
+  var dlp = c.createBiquadFilter(); dlp.type = 'lowpass'; dlp.frequency.value = 2200;
+  var dOut = c.createGain(); dOut.gain.value = 0.55;
+  A.delay.connect(dlp); dlp.connect(fb); fb.connect(A.delay); dlp.connect(dOut); dOut.connect(A.musicBus);
+  A.noiseBuf = noiseBuffer(c, 2.5);
+  A.loop = setInterval(musicTick, 120);
+  applyAudio();
+  return c;
+}
+function impulse(c, seconds, decay){
+  var len = Math.floor(c.sampleRate * seconds), buf = c.createBuffer(2, len, c.sampleRate);
+  for (var ch = 0; ch < 2; ch++) { var d = buf.getChannelData(ch); for (var i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, decay); }
+  return buf;
+}
+function noiseBuffer(c, seconds){
+  var len = Math.floor(c.sampleRate * seconds), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+  for (var i = 0; i < len; i++) d[i] = Math.random()*2-1;
+  return buf;
+}
+function mtof(m){ return 440 * Math.pow(2, (m - 69) / 12); }
+function rnd(n){ return Math.floor(Math.random() * n); }
+
+/* Bitta ohang: o = {bus, f, t, dur, type, g, a, r, glideTo, detune, cutoff, ft, q, vb, verb, dl, delay} */
+function voice(o){
+  var c = A.ctx, t = Math.max(o.t || c.currentTime, c.currentTime), dur = o.dur || 0.3;
+  var osc = c.createOscillator(); osc.type = o.type || 'sine';
+  osc.frequency.setValueAtTime(o.f, t);
+  if (o.glideTo) osc.frequency.exponentialRampToValueAtTime(o.glideTo, t + dur);
+  if (o.detune) osc.detune.value = o.detune;
+  var g = c.createGain(), peak = o.g || 0.1, a = Math.min(o.a || 0.01, dur * 0.9), r = Math.min(o.r || 0.2, dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + a);
+  g.gain.setValueAtTime(peak, t + Math.max(a, dur - r));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  var node = osc;
+  if (o.cutoff) { var f = c.createBiquadFilter(); f.type = o.ft || 'lowpass'; f.frequency.value = o.cutoff; f.Q.value = o.q || 0.7; osc.connect(f); node = f; }
+  node.connect(g); g.connect(o.bus);
+  if (o.verb && o.vb) { var s = c.createGain(); s.gain.value = o.verb; g.connect(s); s.connect(o.vb); }
+  if (o.delay && o.dl) { var s2 = c.createGain(); s2.gain.value = o.delay; g.connect(s2); s2.connect(o.dl); }
+  osc.start(t); osc.stop(t + dur + 0.05);
+}
+/* Shovqin portlashi: o = {bus, t, dur, g, ft, cutoff, cutoffTo, q, a, r, vb, verb} */
+function noise(o){
+  var c = A.ctx, t = Math.max(o.t || c.currentTime, c.currentTime), dur = o.dur || 0.2;
+  var src = c.createBufferSource(); src.buffer = A.noiseBuf;
+  var f = c.createBiquadFilter(); f.type = o.ft || 'bandpass'; f.frequency.setValueAtTime(o.cutoff || 2000, t); f.Q.value = o.q || 0.7;
+  if (o.cutoffTo) f.frequency.exponentialRampToValueAtTime(o.cutoffTo, t + dur);
+  var g = c.createGain(), peak = o.g || 0.05, a = Math.min(o.a || 0.005, dur * 0.9), r = Math.min(o.r || dur * 0.8, dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + a);
+  g.gain.setValueAtTime(peak, t + Math.max(a, dur - r));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f); f.connect(g); g.connect(o.bus);
+  if (o.verb && o.vb) { var s = c.createGain(); s.gain.value = o.verb; g.connect(s); s.connect(o.vb); }
+  src.start(t, Math.random() * 1.5); src.stop(t + dur + 0.05);
+}
+
+/* ---------- Musiqa: rejimlar ---------- */
+function MV(tr, o){ o.bus = tr.out; o.vb = A.mverb; o.dl = A.delay; voice(o); }
+function MN(tr, o){ o.bus = tr.out; o.vb = A.mverb; noise(o); }
+function piano(tr, f, t, dur, g, echo){
+  MV(tr, { f:f, t:t, dur:dur, type:'triangle', g:g, a:0.004, r:dur*0.95, verb:0.35, delay: echo ? 0.5 : 0 });
+  MV(tr, { f:f*2, t:t, dur:dur*0.5, type:'sine', g:g*0.25, a:0.004, r:dur*0.45 });
+}
+function thump(tr, t, g){ MV(tr, { f:72, glideTo:40, t:t, dur:0.2, type:'sine', g:g, a:0.004, r:0.18 }); }
+function loopNoise(tr, ft, cutoff, q, g){
+  var c = A.ctx, src = c.createBufferSource(); src.buffer = A.noiseBuf; src.loop = true;
+  var f = c.createBiquadFilter(); f.type = ft; f.frequency.value = cutoff; f.Q.value = q;
+  var gn = c.createGain(); gn.gain.value = g;
+  src.connect(f); f.connect(gn); gn.connect(tr.out); src.start();
+  tr.loops.push(src);
+}
+var NOIR_CHORDS = [[48,55,58,63],[41,56,60,63],[44,55,60,63],[43,53,59,62]];   // Cm7 · Fm9 · Ab · G7
+var NOIR_LICK = [72,75,77,78,79,82,84];
+function noirStep(tr, t, s, gain){
+  var bar = Math.floor(s/8) % 4, pos = s % 8, ch = NOIR_CHORDS[bar];
+  if (pos === 0) ch.forEach(function(m, i){ piano(tr, mtof(m), t + i*0.025, 2.8, 0.045*gain); });
+  if (pos === 5 && Math.random() < 0.45) ch.slice(1).forEach(function(m){ piano(tr, mtof(m), t, 1.2, 0.025*gain); });
+  if (pos % 2 === 0) { var walk = [0,7,10,7][pos/2]; MV(tr, { f:mtof(ch[0]-12+walk), t:t, dur:0.55, type:'sine', g:0.15*gain, a:0.01, r:0.4 }); }
+  if (pos === 2 || pos === 6) MN(tr, { t:t, dur:0.22, g:0.02*gain, ft:'bandpass', cutoff:3800, q:0.6, a:0.05, r:0.15 });
+  if (pos % 2 === 1 && Math.random() < 0.2) piano(tr, mtof(NOIR_LICK[rnd(7)]), t, 1.1, 0.04*gain, true);
+  if (Math.random() < 0.35) MN(tr, { t:t + Math.random()*0.2, dur:0.006, g:0.04, ft:'highpass', cutoff:3000 });   // plastinka chirsillashi
+}
+var MODES = {
+  menu: { bpm:72, setup:null, step:function(tr, t, s){ noirStep(tr, t, s, 1); } },
+  reveal: { bpm:58, setup:function(tr){ loopNoise(tr, 'lowpass', 500, 0.5, 0.05); }, step:function(tr, t, s){ noirStep(tr, t, s, 0.8); } },
+  night: { bpm:64,
+    setup:function(tr){ loopNoise(tr, 'bandpass', 1900, 0.45, 0.09); loopNoise(tr, 'lowpass', 260, 0.6, 0.12); },   // yomg'ir + gumburlash
+    step:function(tr, t, s){
+      var beat = 60/64, bar = Math.floor(s/16) % 4, pos = s % 16, ch = [[50,53,57],[46,50,53],[43,46,50],[45,49,52]][bar];
+      if (pos === 0) ch.forEach(function(m){
+        MV(tr, { f:mtof(m), t:t, dur:beat*8, type:'sawtooth', g:0.028, a:1.8, r:2.2, cutoff:680, verb:0.55, detune:-7 });
+        MV(tr, { f:mtof(m), t:t, dur:beat*8, type:'sawtooth', g:0.028, a:1.8, r:2.2, cutoff:680, verb:0.55, detune:7 });
+      });
+      if (pos % 8 === 0) MV(tr, { f:mtof(ch[0]-24), t:t, dur:beat*3.5, type:'sine', g:0.24, a:0.06, r:1.6 });
+      if (pos % 8 === 0) { thump(tr, t, 0.26); thump(tr, t + 0.24, 0.16); }
+      if (pos % 2 === 0 && Math.random() < 0.22) MV(tr, { f:mtof([62,65,67,69,72,74][rnd(6)]), t:t, dur:1.5, type:'triangle', g:0.045, a:0.02, r:1.3, delay:0.6, verb:0.45 });
+    } },
+  day: { bpm:96, setup:null,
+    step:function(tr, t, s){
+      var bar = Math.floor(s/8) % 4, pos = s % 8, ch = [[53,57,60],[48,52,55],[50,53,57],[46,50,53]][bar];
+      if (pos === 0) ch.forEach(function(m){ MV(tr, { f:mtof(m), t:t, dur:2.5, type:'triangle', g:0.032, a:0.45, r:1.3, cutoff:1700, verb:0.4 }); });
+      var arp = [0,1,2,1,0,2,1,2];
+      MV(tr, { f:mtof(ch[arp[pos]]+12), t:t, dur:0.32, type:'triangle', g:0.036, a:0.005, r:0.28, delay:0.3 });
+      if (pos % 4 === 0) MV(tr, { f:mtof(ch[0]-12), t:t, dur:0.6, type:'sine', g:0.15, a:0.01, r:0.45 });
+      if (pos % 2 === 1) MN(tr, { t:t, dur:0.06, g:0.012, ft:'highpass', cutoff:7000 });
+    } },
+  vote: { bpm:116, setup:null,
+    step:function(tr, t, s){
+      var bar = Math.floor(s/8) % 4, pos = s % 8, root = [45,41,38,40][bar], third = bar === 3 ? 4 : 3;
+      MV(tr, { f:mtof(root-12), t:t, dur:0.22, type:'sawtooth', g: pos % 4 === 0 ? 0.09 : 0.05, a:0.005, r:0.18, cutoff:440 });
+      MN(tr, { t:t, dur:0.04, g: pos % 2 ? 0.012 : 0.022, ft:'highpass', cutoff:8000 });
+      if (pos === 0) [0, third, 7].forEach(function(i){ MV(tr, { f:mtof(root+12+i), t:t, dur:1.7, type:'sawtooth', g:0.022, a:0.03, r:1.3, cutoff:1300, verb:0.3 }); });
+      if (pos % 4 === 0) thump(tr, t, 0.3);
+    } }
+};
+function musicTick(){
+  var c = A.ctx; if (!c) return;
+  var ahead = c.currentTime + 1.2;
+  A.tracks.forEach(function(tr){
+    if (!tr.alive) return;
+    var m = MODES[tr.mode], step = 60 / m.bpm / 2;
+    if (tr.next < c.currentTime) tr.next = c.currentTime + 0.05;   // fon yorlig'idan qaytganda yig'ilib qolmasin
+    while (tr.next < ahead) { try { m.step(tr, tr.next, tr.step); } catch(e){} tr.step++; tr.next += step; }
+  });
+}
+function musicSetMode(mode){
+  if (!A.ctx || mode === A.mode) return;
+  var c = A.ctx, now = c.currentTime;
+  A.tracks.forEach(function(tr){
+    if (!tr.alive) return;
+    tr.alive = false;
+    tr.out.gain.cancelScheduledValues(now);
+    tr.out.gain.setValueAtTime(tr.out.gain.value, now);
+    tr.out.gain.linearRampToValueAtTime(0.0001, now + 1.6);
+    setTimeout(function(){ tr.loops.forEach(function(s){ try { s.stop(); } catch(e){} }); try { tr.out.disconnect(); } catch(e){} }, 2600);
+  });
+  A.tracks = A.tracks.filter(function(tr){ return tr.alive; });
+  A.mode = mode;
+  if (mode && MODES[mode]) {
+    var out = c.createGain(); out.gain.setValueAtTime(0.0001, now); out.gain.linearRampToValueAtTime(1, now + 2.2); out.connect(A.musicBus);
+    var tr = { mode:mode, out:out, next:now + 0.15, step:0, alive:true, loops:[] };
+    if (MODES[mode].setup) MODES[mode].setup(tr);
+    A.tracks.push(tr);
+  }
+  applyAudio();
+}
+function desiredMusic(){
+  if (S.screen === 'reveal') return 'reveal';
+  if (S.screen === 'host' && S.game) {
+    var g = S.game;
+    if (g.phase === 'night') return g.night.sub === 'idle' ? 'menu' : 'night';
+    return g.day && g.day.sub === 'vote' ? 'vote' : 'day';
+  }
+  return 'menu';
+}
+function updateMusic(){
+  if (!A.ctx) return;
+  var on = S.settings.soundOn && S.settings.musicOn;
+  musicSetMode(on ? desiredMusic() : null);
+  applyAudio();
+}
+function applyAudio(){
+  if (!A.ctx) return;
+  var s = S.settings, now = A.ctx.currentTime;
+  var nightBoost = (A.mode === 'night' && s.nightMask) ? 1.7 : 1;
+  A.master.gain.setTargetAtTime(s.soundOn ? s.masterVol : 0, now, 0.05);
+  A.musicBus.gain.setTargetAtTime(s.musicOn ? s.musicVol * nightBoost * 0.9 : 0, now, 0.25);
+  A.sfxBus.gain.setTargetAtTime(s.sfxOn ? s.sfxVol : 0, now, 0.05);
+}
+function duck(sec){
+  if (!A.ctx) return;
+  var now = A.ctx.currentTime, g = A.duckNode.gain;
+  g.cancelScheduledValues(now); g.setValueAtTime(g.value, now);
+  g.setTargetAtTime(0.3, now, 0.08);
+  g.setTargetAtTime(1, now + sec, 0.7);
+}
+
+/* ---------- Ovoz effektlari ---------- */
+function FX(o){ o.bus = A.sfxBus; o.vb = A.sverb; voice(o); }
+function FN(o){ o.bus = A.sfxBus; o.vb = A.sverb; noise(o); }
+function bell(f, t, g, dur){
+  [[1,1],[2.01,0.5],[2.76,0.32],[4.07,0.18],[5.4,0.08]].forEach(function(p){
+    FX({ f:f*p[0], t:t, dur:dur*(1.1 - p[0]*0.08), type:'sine', g:g*p[1], a:0.003, r:dur*0.95, verb:0.5 });
+  });
+}
+var SFX = {
+  click: function(t){ if (!S.settings.uiClicks) return; FX({ f:1700, glideTo:1050, t:t, dur:0.045, type:'sine', g:0.045, a:0.002, r:0.04 }); },
+  soft: function(t){ FX({ f:520, t:t, dur:0.2, type:'sine', g:0.06, a:0.005, r:0.18, verb:0.2 }); },
+  confirm: function(t){ FX({ f:660, t:t, dur:0.15, type:'sine', g:0.09, a:0.005, r:0.13 }); FX({ f:990, t:t+0.07, dur:0.25, type:'sine', g:0.08, a:0.005, r:0.22, verb:0.3 }); },
+  wake: function(t){ bell(880, t, 0.11, 2.4); bell(1320, t+0.2, 0.07, 2.0); },
+  sleep: function(t){ bell(660, t, 0.1, 2.2); bell(440, t+0.28, 0.1, 2.6); },
+  nightfall: function(t){
+    duck(4.5);
+    FN({ t:t, dur:2.8, g:0.13, ft:'lowpass', cutoff:2600, cutoffTo:110, a:0.35, r:2.2 });
+    FX({ f:92, glideTo:36, t:t, dur:2.6, type:'sine', g:0.36, a:0.02, r:2.2 });
+    [110,166,227,302].forEach(function(f, i){ FX({ f:f, t:t+0.05, dur:4.8, type:'sine', g:[0.12,0.07,0.05,0.03][i], a:0.01, r:4.6, verb:0.6 }); });
+  },
+  dawn: function(t){
+    duck(3.5);
+    [392,494,587,784].forEach(function(f, i){ FX({ f:f, t:t+i*0.17, dur:2.8, type:'sine', g:0.07, a:0.55, r:1.9, verb:0.5 }); });
+    FN({ t:t, dur:2.4, g:0.035, ft:'highpass', cutoff:6000, a:1.1, r:1.1 });
+  },
+  death: function(t){ duck(6); FN({ t:t, dur:0.7, g:0.14, ft:'lowpass', cutoff:380, a:0.004, r:0.65 }); bell(98, t, 0.3, 5.5); bell(98, t+2.4, 0.18, 4.5); },
+  saved: function(t){ [523,659,784,1046].forEach(function(f, i){ FX({ f:f, t:t+i*0.13, dur:1.8, type:'triangle', g:0.055, a:0.01, r:1.6, verb:0.45 }); }); },
+  shuffle: function(t){ for (var i = 0; i < 16; i++) FN({ t:t + i*0.042 + Math.random()*0.012, dur:0.035, g:0.08, ft:'bandpass', cutoff:2400 + Math.random()*1800, q:1.3, a:0.002, r:0.03 }); },
+  reveal: function(t){ FN({ t:t, dur:0.9, g:0.05, ft:'highpass', cutoff:5200, a:0.5, r:0.35, verb:0.3 }); FX({ f:480, glideTo:960, t:t, dur:0.9, type:'sine', g:0.05, a:0.3, r:0.5, verb:0.4 }); },
+  hide: function(t){ FN({ t:t, dur:0.42, g:0.08, ft:'bandpass', cutoff:3200, cutoffTo:380, q:0.8, a:0.02, r:0.36 }); },
+  ready: function(t){ [440,554,659,880].forEach(function(f, i){ FX({ f:f, t:t+i*0.1, dur:1.6, type:'triangle', g:0.05, a:0.01, r:1.4, verb:0.4 }); }); },
+  gong: function(t){ duck(3.5); [150,231,316,401,520].forEach(function(f, i){ FX({ f:f, t:t, dur:5.2, type:'sine', g:[0.2,0.1,0.08,0.05,0.03][i], a:0.004, r:5, verb:0.6 }); }); },
+  gavel: function(t){ FN({ t:t, dur:0.08, g:0.3, ft:'lowpass', cutoff:1600, a:0.001, r:0.07 }); FX({ f:210, glideTo:80, t:t, dur:0.22, type:'sine', g:0.42, a:0.001, r:0.2 }); },
+  eliminate: function(t){ duck(3.5); SFX.gavel(t); SFX.gavel(t+0.26); [110,131,165].forEach(function(f){ FX({ f:f, t:t+0.55, dur:2, type:'sawtooth', g:0.05, a:0.05, r:1.6, cutoff:700, verb:0.45 }); }); },
+  tie: function(t){ [440,415,440,415].forEach(function(f, i){ FX({ f:f, t:t+i*0.19, dur:0.17, type:'triangle', g:0.08, a:0.005, r:0.15 }); }); },
+  tick: function(t){ FX({ f:1200, t:t, dur:0.05, type:'sine', g:0.09, a:0.001, r:0.045 }); },
+  tickHi: function(t){ FX({ f:1700, t:t, dur:0.06, type:'sine', g:0.14, a:0.001, r:0.055 }); },
+  alarm: function(t){ duck(2); for (var i = 0; i < 3; i++) FX({ f:880, t:t+i*0.3, dur:0.22, type:'square', g:0.08, a:0.005, r:0.06, cutoff:2600 }); },
+  timerStart: function(t){ FX({ f:1046, t:t, dur:0.55, type:'sine', g:0.07, a:0.005, r:0.5, verb:0.3 }); },
+  winTown: function(t){
+    duck(6);
+    [[523,0],[659,0.18],[784,0.36]].forEach(function(n){ FX({ f:n[0], t:t+n[1], dur:0.45, type:'triangle', g:0.09, a:0.01, r:0.3 }); });
+    [523,659,784,1046].forEach(function(f){ FX({ f:f, t:t+0.6, dur:2.8, type:'sawtooth', g:0.03, a:0.05, r:2.2, cutoff:2200, verb:0.5 }); FX({ f:f, t:t+0.6, dur:2.8, type:'triangle', g:0.05, a:0.03, r:2.2, verb:0.5 }); });
+  },
+  winMafia: function(t){
+    duck(6);
+    FX({ f:70, glideTo:34, t:t, dur:2.4, type:'sine', g:0.4, a:0.01, r:2 });
+    [74,69,65,62].forEach(function(m, i){ FX({ f:mtof(m-12), t:t+0.3+i*0.42, dur:i === 3 ? 3 : 0.6, type:'sawtooth', g:0.06, a:0.02, r: i === 3 ? 2.6 : 0.4, cutoff:900, verb:0.55 }); });
+  },
+  error: function(t){ FX({ f:190, t:t, dur:0.11, type:'square', g:0.06, a:0.003, r:0.05, cutoff:1200 }); FX({ f:150, t:t+0.13, dur:0.16, type:'square', g:0.06, a:0.003, r:0.08, cutoff:1200 }); },
+  notify: function(t){ FX({ f:1320, t:t, dur:0.16, type:'sine', g:0.05, a:0.003, r:0.14 }); FX({ f:1760, t:t+0.08, dur:0.22, type:'sine', g:0.04, a:0.003, r:0.2, verb:0.2 }); },
+  undo: function(t){ FX({ f:900, glideTo:480, t:t, dur:0.16, type:'sine', g:0.08, a:0.004, r:0.14 }); }
+};
+function sfx(name, delay){
+  if (!A.ctx || !S.settings.soundOn || !S.settings.sfxOn || !SFX[name]) return;
+  try { SFX[name](A.ctx.currentTime + 0.01 + (delay || 0)); } catch(e){}
+}
+
+/* Pastki ovoz paneli (barcha ekranlarda) */
+function setAudio(key, val){
+  S.settings[key] = val; saveSettings();
+  audioInit(); applyAudio(); updateMusic(); updateDock();
+}
+function updateDock(){
+  var dock = $('#sound-dock'); if (!dock) return;
+  var s = S.settings;
+  dock.innerHTML = '';
+  var tgl = function(key, onIco, offIco, label, id){
+    var on = s[key];
+    var b = h('button', {type:'button', class:'dock-btn', id:id, 'aria-pressed':String(!!on), 'aria-label':label + (on ? ': yoqilgan' : ': o‘chirilgan'), title:label,
+      onclick:function(){ setAudio(key, !s[key]); if (key !== 'soundOn' && key !== 'musicOn') sfx('notify'); }}, icon(on ? onIco : offIco));
+    return b;
+  };
+  dock.appendChild(tgl('soundOn', 'speaker', 'mute', 'Barcha ovozlar', 'dock-sound'));
+  dock.appendChild(tgl('musicOn', 'music', 'music', 'Fon musiqasi', 'dock-music'));
+  dock.appendChild(tgl('notifications', 'bell', 'bell', 'Bildirishnomalar', 'dock-notify'));
+  var vol = h('input', {type:'range', id:'dock-vol', min:'0', max:'1', step:'0.05', value:String(s.masterVol), 'aria-label':'Umumiy ovoz balandligi',
+    oninput:function(e){ s.masterVol = Number(e.target.value); audioInit(); applyAudio(); },
+    onchange:function(){ saveSettings(); sfx('confirm'); }});
+  dock.appendChild(vol);
+  dock.classList.toggle('muted-all', !s.soundOn);
+}
+
+/* =====================================================================
+   6. MODAL VA XABARLAR
+   ===================================================================== */
+var lastFocus = null;
+function modal(title, body, actions){
+  closeModal();
+  lastFocus = document.activeElement;
+  var root = $('#modal-root');
+  var box = h('div', {class:'modal panel', role:'dialog', 'aria-modal':'true', 'aria-labelledby':'modal-title'},
+    h('h3', {id:'modal-title', text:title}),
+    h('div', {class:'body'}, body),
+    h('div', {class:'actions'}, actions.map(function(a){
+      return btn(a.label, { cls:a.cls, icon:a.icon, onClick:function(){ closeModal(); if (a.run) a.run(); } });
+    }))
+  );
+  var back = h('div', {class:'modal-back', onclick:function(e){ if (e.target === back) closeModal(); }}, box);
+  root.appendChild(back);
+  sfx('soft');
+  var btns = box.querySelectorAll('button'); if (btns.length) btns[btns.length-1].focus();
+}
+function closeModal(){
+  var root = $('#modal-root');
+  if (root.firstChild) { root.innerHTML = ''; if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch(e){} }
+}
+function confirmAction(title, text, okLabel, run, danger){
+  modal(title, text, [{label:'Bekor qilish', cls:'ghost'}, {label:okLabel, cls: danger ? 'danger' : 'primary', run:run}]);
+}
+function toast(text, kind){
+  // Xatolar har doim ko'rsatiladi; qolgan bildirishnomalarni sozlamada o'chirish mumkin.
+  if (kind === 'err') sfx('error');
+  else if (!S.settings.notifications) return;
+  else sfx('notify');
+  var t = h('div', {class:'toast ' + (kind || ''), text:text});
+  $('#toasts').appendChild(t);
+  setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, kind === 'err' ? 5200 : 3200);
+}
+
+/* =====================================================================
+   7. RENDER
+   ===================================================================== */
+function render(){
+  var app = $('#app');
+  var focusId = document.activeElement && document.activeElement.id;
+  var scrolls = {};
+  app.querySelectorAll('[data-scroll]').forEach(function(el){ scrolls[el.getAttribute('data-scroll')] = el.scrollTop; });
+  app.innerHTML = '';
+  var view = ({ menu:viewMenu, rules:viewRules, settings:viewSettings, setup:viewSetup, reveal:viewReveal, host:viewHost, end:viewEnd })[S.screen] || viewMenu;
+  app.appendChild(view());
+  app.querySelectorAll('[data-scroll]').forEach(function(el){ var k = el.getAttribute('data-scroll'); if (scrolls[k]) el.scrollTop = scrolls[k]; });
+  if (focusId) { var f = document.getElementById(focusId); if (f) try { f.focus({preventScroll:true}); } catch(e){ f.focus(); } }
+  paintTimer();
+  persist();
+  updateMusic();
+  updateDock();
+}
+function go(screen){ S.screen = screen; render(); window.scrollTo(0,0); }
+
+/* ---------- Bosh menyu ---------- */
+function viewMenu(){
+  var saved = store.get(STORE_GAME);
+  var canResume = saved && saved.format === 'mafia-noir' && ['reveal','host'].indexOf(saved.screen) >= 0;
+  return h('div', {class:'menu'},
+    h('div', {class:'menu-inner'},
+      h('h1', {class:'wordmark'}, 'MAFIA', h('span', {text:'NOIR'})),
+      h('p', {class:'motto', text:'Sir. Ishonch. Xiyonat.'}),
+      h('div', {class:'menu-actions'},
+        btn('Yangi o‘yin', { cls:'primary lg', id:'menu-new', onClick:function(){ S.setup = S.setup || defaultSetup(10); go('setup'); } }),
+        canResume ? btn('Saqlangan o‘yinni davom ettirish', { icon:'next', id:'menu-resume', onClick:function(){
+          try { loadSnapshot(saved); render(); toast('O‘yin tiklandi.', 'ok'); } catch(e){ toast(e.message, 'err'); } } }) : null,
+        h('div', {class:'row'},
+          btn('Qoidalar', { icon:'book', id:'menu-rules', onClick:function(){ S.returnTo = 'menu'; go('rules'); } }),
+          btn('Sozlamalar', { icon:'gear', id:'menu-settings', onClick:function(){ S.returnTo = 'menu'; go('settings'); } })
+        ),
+        btn('O‘yinni fayldan yuklash', { cls:'ghost sm', icon:'upload', onClick:openImport })
+      ),
+      h('p', {class:'menu-foot', text:'Boshlovchi uchun boshqaruv tizimi. Barcha ma’lumotlar faqat shu brauzerda saqlanadi; internet talab qilinmaydi. Musiqa va ovozlar — pastki chap burchakda (M tugmasi musiqani o‘chirib-yoqadi).'})
+    )
+  );
+}
+
+/* ---------- Qoidalar ---------- */
+function viewRules(){
+  var sh = S.settings.sheriffName;
+  return h('div', {class:'page'},
+    h('div', {class:'page-head'},
+      h('div', null, h('div', {class:'wordmark-sm'}, 'MAFIA ', h('b', {text:'NOIR'})), h('h1', {text:'Qoidalar'})),
+      btn('Orqaga', { icon:'back', onClick:function(){ go(S.returnTo || 'menu'); } })
+    ),
+    h('div', {class:'panel section'},
+      h('div', {class:'prose'},
+        h('h3', {text:'Jamoalar'}),
+        h('ul', null,
+          h('li', {text:'Mafiya jamoasi: mafiya a’zolari bir-birini taniydi va tunda birgalikda bitta nishon tanlaydi.'}),
+          h('li', {text:'Shahar jamoasi: ' + sh + ', Shifokor va oddiy fuqarolar. Ular kim mafiya ekanini bilmaydi.'})
+        ),
+        h('h3', {text:'Tun'}),
+        h('ol', null,
+          h('li', {text:'Hamma ko‘zini yumadi. Boshlovchi rollarni navbat bilan uyg‘otadi.'}),
+          h('li', {text:'Mafiya bitta nishon tanlaydi. Birinchi tunda mafiya a’zolari bir-birini ko‘radi.'}),
+          h('li', {text:'Shifokor bitta o‘yinchini himoya qiladi' + (S.settings.doctorSelfHeal ? ' (o‘zini ham).' : ' (o‘zini emas).')}),
+          h('li', {text:sh + ' bitta o‘yinchini tekshiradi. Boshlovchi unga natijani jim imo bilan bildiradi. Tekshiruv hech kimni chiqarmaydi.'})
+        ),
+        h('h3', {text:'Tong'}),
+        h('ul', null,
+          h('li', {text:'Mafiya nishonini shifokor himoya qilgan bo‘lsa, hech kim chiqmaydi. Aks holda nishon o‘yindan chiqadi.'}),
+          h('li', {text:'Ommaga faqat natija aytiladi: kim himoya qilingani yoki kim tekshirilgani aytilmaydi.'})
+        ),
+        h('h3', {text:'Kunduz'}),
+        h('ul', null,
+          h('li', {text:'Muhokama: o‘yinchilar dalil keltiradi, shubhalarini aytadi.'}),
+          h('li', {text:'Ovoz berish: eng ko‘p ovoz olgan o‘yinchi chiqadi. Teng ovozda — sozlamaga ko‘ra qayta ovoz yoki hech kim chiqmaydi.'}),
+          h('li', {text:'O‘yindan chiqqan o‘yinchi gapirmaydi, ovoz bermaydi va tungi harakatda qatnashmaydi.'})
+        ),
+        h('h3', {text:'G‘alaba'}),
+        h('ul', null,
+          h('li', {text:'Tirik mafiya qolmasa — shahar g‘olib.'}),
+          h('li', {text:'Tirik mafiya soni qolgan tirik o‘yinchilarga teng yoki ko‘p bo‘lsa — mafiya g‘olib.'})
+        )
+      )
+    )
+  );
+}
+
+/* ---------- Sozlamalar ---------- */
+function setSetting(key, val){
+  S.settings[key] = val; saveSettings();
+  if (key === 'extendedRange') clampSetupCount();
+  render();
+}
+function fieldCheck(id, label, hint, key){
+  return h('div', {class:'field'},
+    h('label', {class:'fl', for:id}, h('b', {text:label}), hint ? h('span', {text:hint}) : null),
+    h('input', {type:'checkbox', id:id, checked:S.settings[key], onchange:function(e){ setSetting(key, e.target.checked); }})
+  );
+}
+function fieldSelect(id, label, hint, key, options, numeric){
+  var sel = h('select', {id:id, onchange:function(e){ setSetting(key, numeric ? Number(e.target.value) : e.target.value); }},
+    options.map(function(o){ var op = h('option', {value:String(o[0]), text:o[1]}); if (String(S.settings[key]) === String(o[0])) op.selected = true; return op; }));
+  return h('div', {class:'field'}, h('label', {class:'fl', for:id}, h('b', {text:label}), hint ? h('span', {text:hint}) : null), sel);
+}
+function voteFields(prefix){
+  var on = S.settings.votingEnabled;
+  return [
+    fieldCheck(prefix+'vote-on', 'Ovoz berish', 'O‘chirilsa, chiqarishni boshlovchi qo‘lda bajaradi.', 'votingEnabled'),
+    on ? fieldSelect(prefix+'vote-timer', 'Ovoz berish taymeri', null, 'voteTimer', [[30,'30 soniya'],[60,'1 daqiqa'],[90,'1,5 daqiqa'],[120,'2 daqiqa'],[0,'Cheklanmagan']], true) : null,
+    on ? fieldSelect(prefix+'vote-tie', 'Ovozlar teng bo‘lsa', null, 'tieRule', [['revote','Teng ovozlilar orasida qayta ovoz'],['none','Hech kim chiqmaydi']]) : null,
+    on ? fieldCheck(prefix+'vote-revote', 'Qayta ovoz berish yoqilgan', 'O‘chirilsa, teng ovozda hech kim chiqmaydi.', 'revoteEnabled') : null,
+    on ? fieldCheck(prefix+'vote-all', 'Barcha tirik o‘yinchilar ovoz berishi shart', null, 'allMustVote') : null,
+    on ? fieldCheck(prefix+'vote-abstain', 'Betaraf qolish mumkin', null, 'allowAbstain') : null,
+    on ? fieldCheck(prefix+'vote-self', 'O‘ziga ovoz berish mumkin', null, 'allowSelfVote') : null,
+    on ? fieldCheck(prefix+'vote-reveal', 'Ovoz natijasida rol oshkor qilinadi', null, 'revealRoleOnVote') : null
+  ];
+}
+function viewSettings(){
+  return h('div', {class:'page'},
+    h('div', {class:'page-head'},
+      h('div', null, h('div', {class:'wordmark-sm'}, 'MAFIA ', h('b', {text:'NOIR'})), h('h1', {text:'Sozlamalar'})),
+      h('div', {class:'actions'},
+        btn('Standart holatga qaytarish', { cls:'ghost', icon:'reset', onClick:function(){
+          confirmAction('Sozlamalarni tiklash', 'Barcha sozlamalar standart qiymatlarga qaytadi.', 'Tiklash', function(){
+            S.settings = Object.assign({}, DEFAULT_SETTINGS); saveSettings(); clampSetupCount(); render(); toast('Sozlamalar tiklandi.', 'ok'); }); } }),
+        btn('Orqaga', { icon:'back', onClick:function(){ go(S.returnTo || 'menu'); } })
+      )
+    ),
+    h('div', {class:'setup-grid'},
+      h('div', {class:'panel section'},
+        h('h3', {text:'O‘yin'}),
+        h('div', null,
+          fieldCheck('set-range', 'Kengaytirilgan diapazon', 'Standart 8–12 o‘yinchi; yoqilsa 4–20.', 'extendedRange'),
+          fieldSelect('set-sheriff', 'Tekshiruvchi rol nomi', null, 'sheriffName', [['Komissar','Komissar'],['Sherif','Sherif']]),
+          fieldCheck('set-selfheal', 'Shifokor o‘zini davolay oladi', null, 'doctorSelfHeal'),
+          fieldCheck('set-revealnight', 'Tunda chiqqanning roli oshkor qilinadi', 'Ommaviy xabarga rol qo‘shiladi.', 'revealRoleOnNight'),
+          fieldSelect('set-disc', 'Muhokama standart vaqti', null, 'discussionDefault', [[60,'1 daqiqa'],[120,'2 daqiqa'],[180,'3 daqiqa'],[0,'Cheklanmagan']], true)
+        )
+      ),
+      h('div', {class:'panel section'}, h('h3', {text:'Ovoz berish'}), h('div', null, voteFields('set-'))),
+      h('div', {class:'panel section'},
+        h('h3', {text:'Ovoz va musiqa'}),
+        h('p', {class:'muted', text:'Barcha tovushlar shu faylning o‘zida yaratiladi — internet kerak emas. Tunda musiqa va yomg‘ir shovqini o‘yinchilarning shivir-shivirini yashiradi.'}),
+        h('div', null,
+          fieldCheck('set-sound', 'Barcha ovozlar', 'Asosiy o‘chirgich.', 'soundOn'),
+          fieldRange('set-master', 'Umumiy balandlik', 'masterVol'),
+          fieldCheck('set-music', 'Fon musiqasi', 'Har bir bosqichga mos kayfiyat: tun, kunduz, ovoz berish.', 'musicOn'),
+          fieldRange('set-musicvol', 'Musiqa balandligi', 'musicVol'),
+          fieldCheck('set-mask', 'Tungi niqob', 'Tunda musiqa balandroq — kim qimirlagani eshitilmaydi.', 'nightMask'),
+          fieldCheck('set-sfx', 'Ovoz effektlari', 'Tun tushishi, uyg‘onish, tong, bolg‘acha va boshqalar.', 'sfxOn'),
+          fieldRange('set-sfxvol', 'Effektlar balandligi', 'sfxVol'),
+          fieldCheck('set-clicks', 'Tugma tovushlari', null, 'uiClicks'),
+          fieldCheck('set-timersfx', 'Taymer tovushlari', 'Oxirgi 10 soniyada chiqillash, tugaganda signal.', 'timerSounds'),
+          fieldCheck('set-notify', 'Bildirishnomalar', 'Xato xabarlari baribir ko‘rsatiladi.', 'notifications')
+        ),
+        h('div', {class:'actions'},
+          btn('Effektni sinash', { cls:'sm', icon:'speaker', onClick:function(){ audioInit(); sfx('wake'); } }),
+          btn('Tun tovushi', { cls:'sm', icon:'moon', onClick:function(){ audioInit(); sfx('nightfall'); } }),
+          btn('G‘alaba tovushi', { cls:'sm', icon:'check', onClick:function(){ audioInit(); sfx('winTown'); } })
+        )
+      )
+    )
+  );
+}
+function fieldRange(id, label, key){
+  var out = h('span', {class:'mono muted', text:Math.round(S.settings[key]*100) + '%'});
+  return h('div', {class:'field'},
+    h('label', {class:'fl', for:id}, h('b', {text:label})),
+    h('div', {class:'range-wrap'},
+      h('input', {type:'range', id:id, min:'0', max:'1', step:'0.05', value:String(S.settings[key]),
+        oninput:function(e){ S.settings[key] = Number(e.target.value); out.textContent = Math.round(S.settings[key]*100) + '%'; audioInit(); applyAudio(); updateDock(); },
+        onchange:function(){ saveSettings(); sfx('confirm'); }}),
+      out)
+  );
+}
+
+/* ---------- Tayyorgarlik ---------- */
+function clampSetupCount(){
+  var r = playerRange(), st = S.setup;
+  if (st.count < r[0]) setCount(r[0], true);
+  if (st.count > r[1]) setCount(r[1], true);
+}
+function setCount(n, silent){
+  var st = S.setup, r = playerRange();
+  n = Math.max(r[0], Math.min(r[1], n));
+  var diff = n - st.count;
+  st.count = n;
+  st.names = st.names.slice(0, n); while (st.names.length < n) st.names.push('');
+  st.counts.citizen = Math.max(0, (st.counts.citizen || 0) + diff);
+  if (!silent) render();
+}
+function setRoleCount(id, delta){
+  var v = (S.setup.counts[id] || 0) + delta;
+  if (v < 0) return;
+  S.setup.counts[id] = v;
+  render();
+}
+function viewSetup(){
+  var st = S.setup, range = playerRange(), errs = setupErrors(), sum = 0;
+  ROLES.forEach(function(r){ sum += st.counts[r.id] || 0; });
+  var ok = sum === st.count;
+
+  var countStepper = h('div', {class:'stepper'},
+    h('button', {type:'button', 'aria-label':'O‘yinchini kamaytirish', id:'cnt-minus', disabled: st.count <= range[0], onclick:function(){ setCount(st.count-1); }, text:'−'}),
+    h('output', {'aria-live':'polite', text:String(st.count)}),
+    h('button', {type:'button', 'aria-label':'O‘yinchini ko‘paytirish', id:'cnt-plus', disabled: st.count >= range[1], onclick:function(){ setCount(st.count+1); }, text:'+'})
+  );
+
+  var roleRows = h('div', {class:'role-rows'}, ROLES.map(function(r){
+    var c = st.counts[r.id] || 0;
+    return h('div', {class:'role-row'},
+      h('div', {class:'medal ' + r.id}, icon(r.icon)),
+      h('div', null, h('div', {class:'rname', text:r.name()}), h('div', {class:'rteam', text:TEAM_NAME[r.team]})),
+      h('div', {class:'stepper'},
+        h('button', {type:'button', id:'rm-'+r.id, 'aria-label':r.name() + ' sonini kamaytirish', disabled: c <= 0, onclick:function(){ setRoleCount(r.id, -1); }, text:'−'}),
+        h('output', {text:String(c)}),
+        h('button', {type:'button', id:'rp-'+r.id, 'aria-label':r.name() + ' sonini ko‘paytirish', onclick:function(){ setRoleCount(r.id, 1); }, text:'+'})
+      )
+    );
+  }));
+
+  var names = h('div', {class:'names'}, st.names.map(function(n, i){
+    return h('div', {class:'name-field'},
+      h('span', {class:'seat', text:String(i+1)}),
+      h('input', {id:'name-'+i, type:'text', maxlength:'24', placeholder:'Ism (ixtiyoriy)', value:n, autocomplete:'off',
+        'aria-label':(i+1) + '-o‘yinchi ismi',
+        oninput:function(e){ st.names[i] = e.target.value; },
+        onchange:function(){ render(); }})
+    );
+  }));
+
+  return h('div', {class:'page'},
+    h('div', {class:'page-head'},
+      h('div', null, h('div', {class:'wordmark-sm'}, 'MAFIA ', h('b', {text:'NOIR'})), h('h1', {text:'Tayyorgarlik'})),
+      h('div', {class:'actions'},
+        btn('Qoidalar', { cls:'ghost', icon:'book', onClick:function(){ S.returnTo = 'setup'; go('rules'); } }),
+        btn('Sozlamalar', { cls:'ghost', icon:'gear', onClick:function(){ S.returnTo = 'setup'; go('settings'); } }),
+        btn('Menyu', { icon:'back', onClick:function(){ go('menu'); } })
+      )
+    ),
+    h('div', {class:'setup-grid'},
+      h('div', {class:'panel section'},
+        h('div', {class:'actions'}, h('h3', {class:'grow', text:'O‘yinchilar va rollar'}), countStepper),
+        h('p', {class:'muted', text:'Diapazon: ' + range[0] + '–' + range[1] + ' o‘yinchi. Kengaytirish — sozlamalarda.'}),
+        roleRows,
+        h('div', {class:'sum-line ' + (ok ? 'ok' : 'bad')},
+          h('span', {text:'Jami rollar: ' + sum + ' / ' + st.count + ' o‘yinchi'}),
+          h('b', {text: ok ? 'Teng' : (sum > st.count ? '+' : '') + (sum - st.count)})
+        ),
+        errs.length ? h('ul', {class:'errors'}, errs.map(function(e){ return h('li', {text:e}); })) : null,
+        h('div', {class:'actions'},
+          btn('Standart taqsimot', { cls:'ghost sm', icon:'reset', onClick:function(){ st.counts = defaultCounts(st.count); render(); } }),
+          btn('Hammasini tozalash', { cls:'ghost sm', icon:'x', onClick:function(){
+            confirmAction('Tayyorgarlikni tozalash', 'O‘yinchilar soni, rollar va ismlar standart holatga qaytadi.', 'Tozalash', function(){ S.setup = defaultSetup(Math.max(range[0], Math.min(range[1], 10))); render(); }); } })
+        )
+      ),
+      h('div', {class:'side'},
+        h('div', {class:'panel section'},
+          h('h3', {text:'Ismlar'}),
+          h('p', {class:'muted', text:'Oldindan kiritish ixtiyoriy. Bo‘sh qolsa, har bir o‘yinchi rolini ko‘rishdan oldin o‘zi kiritadi.'}),
+          names
+        ),
+        h('div', {class:'panel section'}, h('h3', {text:'Ovoz berish'}), h('div', null, voteFields('setup-')))
+      )
+    ),
+    h('div', {class:'panel section'},
+      h('p', {class:'notice', text:'O‘yin holati shu brauzerda avtomatik saqlanadi. Shunday bo‘lsa-da, sahifani yangilash yoki brauzer xotirasini tozalash o‘yinni yo‘qotishi mumkin — muhim o‘yinda boshqaruv panelidagi «Eksport» tugmasi bilan JSON nusxa oling.'}),
+      h('div', {class:'actions'},
+        h('span', {class:'grow muted', text: errs.length ? 'Xatolarni tuzating — shundan so‘ng aralashtirish faollashadi.' : 'Hammasi tayyor. Aralashtirish natijasi ekranda ko‘rsatilmaydi.'}),
+        btn('Tasodifiy rollarni aralashtirish', { cls:'primary lg', icon:'shuffle', id:'btn-deal', disabled: errs.length > 0, onClick:shuffleAndDeal })
+      )
+    )
+  );
+}
+
+/* ---------- Maxfiy rol ko'rish ---------- */
+function dots(){
+  return h('div', {class:'progress-dots', 'aria-label': (S.deal.idx) + ' / ' + S.players.length + ' o‘yinchi rolini ko‘rdi'},
+    S.players.map(function(_, i){ return h('i', {class: i < S.deal.idx ? 'done' : i === S.deal.idx ? 'cur' : ''}); }));
+}
+function nameTaken(name, exceptIdx){
+  var k = name.trim().toLowerCase();
+  return S.players.some(function(p, i){ return i !== exceptIdx && p.name && p.name.trim().toLowerCase() === k; });
+}
+function viewReveal(){
+  var d = S.deal, p = S.players[d.idx], total = S.players.length;
+  var card;
+
+  if (d.stage === 'done') {
+    card = h('div', {class:'panel reveal-card'},
+      h('div', {class:'lock'}, icon('check')),
+      h('h2', {text:'Barcha rollar tarqatildi. O‘yin boshlashga tayyor.'}),
+      h('p', {class:'lead', text:'Endi noutbuk faqat boshlovchida qoladi. O‘yinchilar joyiga qaytsin.'}),
+      btn('O‘yinni boshlash', { cls:'primary lg', icon:'play', id:'btn-start', primary:true, onClick:startGame })
+    );
+  } else if (d.stage === 'welcome') {
+    var input = h('input', {id:'reveal-name', type:'text', maxlength:'24', placeholder:'Ismingiz', value:p.name || '', autocomplete:'off', 'aria-label':'Ismingiz',
+      onkeydown:function(e){ if (e.key === 'Enter') { e.preventDefault(); next(); } }});
+    var next = function(){
+      var v = input.value.trim();
+      if (!v) { toast('Ismni kiriting.', 'err'); input.focus(); return; }
+      if (nameTaken(v, d.idx)) { toast('Bu ism allaqachon band. Boshqa ism yoki familiya qo‘shing.', 'err'); input.focus(); return; }
+      p.name = v; d.stage = 'privacy'; render();
+      var b = $('#btn-show-role'); if (b) b.focus();
+    };
+    card = h('div', {class:'panel reveal-card'},
+      h('span', {class:'eyebrow', text:(d.idx + 1) + '-o‘yinchi / ' + total}),
+      h('h2', {text:'Navbatdagi o‘yinchi tayyor bo‘lsin.'}),
+      h('p', {class:'lead', text:'Ismingizni kiriting.'}),
+      input,
+      h('div', {class:'actions', style:'justify-content:center'},
+        !d.started ? btn('Qayta aralashtirish', { cls:'ghost sm', icon:'shuffle', onClick:function(){ reshuffle(); } }) : null,
+        !d.started ? btn('Sozlashga qaytish', { cls:'ghost sm', icon:'back', onClick:function(){
+          confirmAction('Sozlashga qaytish', 'Rollar bekor qilinadi; keyin yana aralashtirasiz.', 'Qaytish', function(){ S.deal = null; S.players = []; go('setup'); }); } }) : null,
+        btn('Davom etish', { cls:'primary', icon:'next', id:'btn-name-next', onClick:next })
+      ),
+      dots()
+    );
+    setTimeout(function(){ var i = $('#reveal-name'); if (i && document.activeElement !== i) i.focus(); }, 30);
+  } else if (d.stage === 'privacy') {
+    card = h('div', {class:'panel reveal-card'},
+      h('div', {class:'lock'}, icon('lock')),
+      h('span', {class:'eyebrow', text:p.name}),
+      h('h2', {text:'Ekranga faqat o‘zingiz qarang.'}),
+      h('p', {class:'lead', text:'Boshqalar ko‘rmayotganiga ishonch hosil qiling.'}),
+      h('div', {class:'actions', style:'justify-content:center'},
+        btn('Ismni o‘zgartirish', { cls:'ghost', icon:'back', onClick:function(){ d.stage = 'welcome'; render(); } }),
+        btn('Rolimni ko‘rish', { cls:'primary lg', icon:'eye', id:'btn-show-role', onClick:function(){ d.started = true; d.stage = 'shown'; sfx('reveal'); render(); var b = $('#btn-hide-role'); if (b) b.focus(); } })
+      ),
+      dots()
+    );
+  } else { // shown
+    var r = roleDef(p.role);
+    card = h('div', {class:'role-card ' + r.id, role:'region', 'aria-label':'Sizning rolingiz'},
+      h('span', {class:'eyebrow', text:'Sizning rolingiz'}),
+      icon(r.icon, 'big-ico'),
+      h('div', {class:'rtitle', text:r.name()}),
+      h('div', {class:'rteam', text:TEAM_NAME[r.team]}),
+      h('p', {class:'rdesc', text:r.desc()}),
+      btn('Rolni yashirish va davom etish', { cls:'primary lg', icon:'eyeoff', id:'btn-hide-role', onClick:function(){
+        d.idx++;
+        d.stage = d.idx >= total ? 'done' : 'welcome';
+        sfx('hide');
+        if (d.stage === 'done') sfx('ready', 0.35);
+        render();
+      } })
+    );
+  }
+  return h('div', {class:'reveal'}, card);
+}
+
+/* ---------- Boshlovchi paneli ---------- */
+function stat(k, v, cls, ico){ return h('div', {class:'stat ' + (cls || '')}, h('span', {class:'k', text:k}), h('span', {class:'v'}, ico ? icon(ico) : null, h('span', {text:String(v)}))); }
+
+function viewHost(){
+  var g = S.game, alive = alivePlayers().length, out = S.players.length - alive;
+  var phaseName = g.phase === 'night' ? 'Tun' : 'Kunduz';
+  var top = h('div', {class:'panel topbar'},
+    h('div', {class:'wordmark-sm'}, 'MAFIA ', h('b', {text:'NOIR'})),
+    h('div', {class:'stats'},
+      stat('Raund', g.round),
+      stat('Faza', phaseName, null, g.phase === 'night' ? 'moon' : 'sun'),
+      stat('Tirik', alive, null, 'users'),
+      stat('Chiqqan', out, null, 'out'),
+      h('div', {class:'stat mafia secret', title:'Faqat boshlovchi uchun'}, h('span', {class:'k', text:'Faol mafiya'}), h('span', {class:'v'}, icon('mafia'), h('span', {text:String(countRole('mafia', true))})))
+    ),
+    h('div', {class:'tools'},
+      btn('Keyingi bosqich', { cls:'sm', icon:'next', id:'tool-next', onClick:advance, title:'Joriy bosqichning asosiy tugmasini bosadi' }),
+      btn('Bekor qilish', { cls:'sm', icon:'undo', id:'tool-undo', disabled: undoStack.length === 0, onClick:undo, title: undoStack.length ? 'Oxirgi harakat: ' + undoStack[undoStack.length-1].label : 'Bekor qilinadigan harakat yo‘q' }),
+      btn(S.ui.privacy ? 'Rollarni ko‘rsatish' : 'Rollarni yashirish', { cls:'sm', icon: S.ui.privacy ? 'eye' : 'eyeoff', id:'tool-privacy', onClick:function(){ S.ui.privacy = !S.ui.privacy; render(); } }),
+      btn('Eksport', { cls:'sm ghost', icon:'download', onClick:exportGame }),
+      btn('Menyu', { cls:'sm ghost', icon:'back', onClick:function(){
+        confirmAction('Bosh menyuga chiqish', 'O‘yin brauzerda saqlanadi va menyudan davom ettirish mumkin.', 'Chiqish', function(){ timerStop(); go('menu'); }); } })
+    )
+  );
+  return h('div', {class:'host' + (S.ui.privacy ? ' privacy-on' : '')},
+    top,
+    h('div', {class:'host-grid'}, viewStage(), h('div', {class:'side'}, viewPlayerList(), viewLogs()))
+  );
+}
+
+/* "Keyingi bosqich": sahnadagi asosiy tugmani ishga tushiradi */
+function advance(){
+  var b = document.querySelector('.stage [data-primary="1"]');
+  if (b && !b.disabled) { b.click(); return; }
+  if (b && b.disabled) { toast('Avval tanlovni belgilang va tasdiqlang.', 'warn'); return; }
+  toast('Bu bosqichda boshlovchining qarori kerak — sahnadagi tugmalardan foydalaning.', 'warn');
+}
+
+function viewStage(){
+  var g = S.game;
+  var stage = h('section', {class:'panel stage ' + g.phase, 'aria-label':'Joriy bosqich'});
+  append(stage, g.phase === 'night' ? stageNight() : stageDay());
+  return stage;
+}
+function phaseTag(text, ico){ return h('div', {class:'phase-tag'}, icon(ico), h('span', {text:text})); }
+function cue(text){ return h('p', {class:'cue'}, icon('target'), h('span', {text:text})); }
+
+/* ----- Tun ----- */
+function stageNight(){
+  var g = S.game, n = g.night;
+  var head = h('div', {class:'stage-head'}, phaseTag('Tun · ' + g.round + '-raund', 'moon'),
+    n.steps.length && n.sub !== 'idle' && n.sub !== 'intro' ? h('span', {class:'eyebrow', text: n.sub === 'dawn' ? 'Tong oldidan' : (Math.min(n.i+1, n.steps.length) + ' / ' + n.steps.length + ' harakat')}) : null);
+
+  if (n.sub === 'idle') {
+    return [head,
+      h('div', {class:'announce cinema'}, (g.round === 1 ? 'Shahar uyquga ketishga tayyor.' : 'Kun yakunlandi.'), h('span', {class:'sub', text:'Boshlovchi tunni boshlaganda barcha ko‘zini yumadi.'})),
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}), btn('Tunni boshlash', { cls:'primary lg', icon:'moon', id:'btn-night', primary:true, onClick:function(){ pushUndo('tunni boshlash'); n.sub = 'intro'; sfx('nightfall'); render(); } }))];
+  }
+  if (n.sub === 'intro') {
+    return [head,
+      h('div', {class:'announce cinema'}, 'Tun tushdi.', h('span', {class:'sub', text:'Barcha ko‘zlarini yumsin.'})),
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}), btn('Davom etish', { cls:'primary lg', icon:'next', id:'btn-continue', primary:true, onClick:function(){ n.sub = n.steps.length ? 'open' : 'dawn'; n.i = 0; S.ui.pick = null; if (n.steps.length) sfx('wake'); render(); } }))];
+  }
+  if (n.sub === 'open') return [head].concat(stageNightOpen());
+  if (n.sub === 'close') {
+    var r = roleDef(n.steps[n.i]);
+    var extra = null;
+    if (r.id === 'sheriff' && n.sheriffTarget !== null) extra = privateSheriff(n);
+    return [head,
+      extra,
+      h('div', {class:'announce'}, r.name() + ', ko‘zlaringizni yuming.'),
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}), btn('Davom etish', { cls:'primary lg', icon:'next', id:'btn-continue', primary:true, onClick:function(){
+        n.i++; S.ui.pick = null;
+        n.sub = n.i < n.steps.length ? 'open' : 'dawn';
+        if (n.sub === 'open') sfx('wake');
+        render(); } }))];
+  }
+  if (n.sub === 'dawn') {
+    var nm = function(id){ var p = id === null ? null : playerById(id); return p ? p.name : '— tanlanmagan —'; };
+    var rows = [];
+    if (n.steps.indexOf('mafia') >= 0) rows.push(h('dt', {text:'Mafiya nishoni'}), h('dd', {text:nm(n.mafiaTarget)}));
+    if (n.steps.indexOf('doctor') >= 0) rows.push(h('dt', {text:'Shifokor himoyasi'}), h('dd', {text:nm(n.doctorTarget)}));
+    if (n.steps.indexOf('sheriff') >= 0) rows.push(h('dt', {text:S.settings.sheriffName + ' tekshiruvi'}), h('dd', {text: nm(n.sheriffTarget) + (n.sheriffTarget !== null ? (n.sheriffResult ? ' — MAFIYA' : ' — mafiya emas') : '')}));
+    return [head,
+      h('div', {class:'announce'}, 'Tungi harakatlar yakunlandi.', h('span', {class:'sub', text:'Natijani faqat siz ko‘ryapsiz. Tayyor bo‘lsangiz, tongni oching.'})),
+      h('div', {class:'private secret'}, h('span', {class:'eyebrow'}, icon('lock'), 'Maxfiy · faqat boshlovchi'), h('dl', {class:'kv'}, rows)),
+      h('div', {class:'stage-actions'},
+        h('span', {class:'grow muted', text:'Xato bo‘lsa, «Bekor qilish» bilan oldingi tanlovga qayting.'}),
+        btn('Tongni ochish', { cls:'primary lg', icon:'sun', id:'btn-dawn', primary:true, onClick:openDawn }))];
+  }
+  return [head];
+}
+function privateSheriff(n){
+  var t = playerById(n.sheriffTarget);
+  return h('div', {class:'private secret'},
+    h('span', {class:'eyebrow'}, icon('lock'), 'Maxfiy · ' + S.settings.sheriffName + ' tekshiruvi'),
+    h('div', {class:'verdict ' + (n.sheriffResult ? 'is-mafia' : 'not-mafia'), text:'Tekshiruv natijasi: ' + (n.sheriffResult ? 'MAFIYA' : 'MAFIYA EMAS')}),
+    h('p', {class:'muted', text: t.name + (n.sheriffResult ? ' — mafiya. ' + S.settings.sheriffName + ' uni tekshiruv bilan chiqara olmaydi; kunduzi dalil bilan ishontirishi kerak.' : ' — mafiya emas.') + ' Natijani ' + S.settings.sheriffName + 'ga jim imo bilan bildiring.'})
+  );
+}
+function stageNightOpen(){
+  var n = S.game.night, r = roleDef(n.steps[n.i]), act = r.night;
+  var actorsAlive = countRole(r.id, true);
+  var announce = h('div', {class:'announce'}, r.name() + ', ko‘zlaringizni oching.');
+  if (actorsAlive === 0) {
+    return [announce,
+      cue('Bu rol egalari o‘yindan chiqqan. Sir saqlanishi uchun chaqiruvni odatdagidek o‘qing, biroz kuting va davom eting.'),
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}), btn('Davom etish (harakatsiz)', { cls:'primary', icon:'next', id:'btn-skip', primary:true, onClick:function(){ confirmNight(null); } }))];
+  }
+  var grid = h('div', {class:'pick-grid', role:'group', 'aria-label':act.prompt()}, S.players.map(function(p){
+    var eligible = act.eligible(p);
+    var note = !p.alive ? 'o‘yindan chiqqan' : (!eligible ? (act.blockedNote(p) || 'tanlab bo‘lmaydi') : '');
+    var b = h('button', {type:'button', id:'pick-'+p.id, class:'pick ' + (act.tone === 'kill' ? 'kill ' : '') + (p.alive ? '' : 'dead'),
+      'aria-pressed': String(S.ui.pick === p.id), disabled: !eligible,
+      onclick:function(){ S.ui.pick = S.ui.pick === p.id ? null : p.id; render(); }},
+      h('span', {class:'pn', text:p.name}), h('span', {class:'ps', text: note || (p.id+1) + '-o‘rin'}));
+    return b;
+  }));
+  return [announce,
+    cue(act.prompt()),
+    grid,
+    h('div', {class:'stage-actions'},
+      btn('Tanlovsiz o‘tkazish', { cls:'ghost', icon:'x', onClick:function(){
+        confirmAction('Tanlovsiz o‘tkazish', r.name() + ' bu tun hech kimni tanlamaganini qayd etamizmi?', 'Ha, o‘tkazish', function(){ confirmNight(null); }); } }),
+      h('span', {class:'grow'}),
+      btn(act.confirm, { cls:'primary lg', icon:'check', id:'btn-confirm', primary:true, disabled: S.ui.pick === null, onClick:function(){ confirmNight(S.ui.pick); } })
+    )];
+}
+function confirmNight(targetId){
+  var n = S.game.night, r = roleDef(n.steps[n.i]);
+  if (targetId !== null) {
+    var p = playerById(targetId);
+    if (!p || !r.night.eligible(p)) { toast('Bu o‘yinchini tanlab bo‘lmaydi.', 'err'); return; }
+  }
+  pushUndo(r.name() + ' tanlovi');
+  n[r.night.key] = targetId;
+  n.acted[r.id] = true;
+  if (r.id === 'sheriff') {
+    n.sheriffResult = targetId !== null ? teamOf(playerById(targetId)) === 'mafia' : null;
+    if (targetId !== null) hostLog(S.settings.sheriffName + ' tekshiruvi: ' + playerById(targetId).name + ' — ' + (n.sheriffResult ? 'MAFIYA' : 'mafiya emas') + '.');
+  } else if (targetId !== null) {
+    hostLog(r.name() + ' tanlovi: ' + playerById(targetId).name + '.');
+  } else {
+    hostLog(r.name() + ' bu tun tanlov qilmadi.');
+  }
+  S.ui.pick = null;
+  n.sub = 'close';
+  // Bir xil tovush: tanlov, o'tkazish yoki tekshiruv natijasi ovozdan bilinmaydi
+  sfx('confirm'); sfx('sleep', 0.35);
+  render();
+}
+function openDawn(){
+  var n = S.game.night;
+  if (n.sub !== 'dawn' || n.i < n.steps.length) { toast('Tungi harakatlar hali yakunlanmagan.', 'err'); return; }
+  pushUndo('tongni ochish');
+  var res = resolveNight();
+  var msg = res.message;
+  if (res.victim && S.settings.revealRoleOnNight) msg += ' Uning roli: ' + roleName(res.victim.role) + '.';
+  S.game.phase = 'day';
+  S.game.day = { sub:'announce', message:msg, victimId: res.victim ? res.victim.id : null, pendingWinner: computeWinner(), voteMessage:null };
+  S.game.vote = null;
+  sfx('dawn');
+  sfx(res.victim ? 'death' : 'saved', 1.7);
+  render();
+}
+
+/* ----- Kunduz ----- */
+function stageDay(){
+  var g = S.game, d = g.day;
+  var head = h('div', {class:'stage-head'}, phaseTag('Kunduz · ' + g.round + '-raund', 'sun'),
+    h('span', {class:'eyebrow', text: ({announce:'Tong xabari', open:'Uyg‘onish', discussion:'Muhokama', vote:'Ovoz berish', voteResult:'Ovoz natijasi'})[d.sub] || ''}));
+
+  if (d.sub === 'announce') {
+    return [head,
+      h('div', {class:'announce cinema'}, d.message),
+      d.victimId !== null ? cue('O‘yindan chiqqan o‘yinchining ismini tasdiqlang va e’lon qiling. U endi gapirmaydi va ovoz bermaydi.') : null,
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}),
+        btn(d.pendingWinner ? 'Natijalarni ko‘rish' : 'Davom etish', { cls:'primary lg', icon:'next', id:'btn-continue', primary:true, onClick:function(){
+          if (d.pendingWinner) { endGame(d.pendingWinner); return; }
+          d.sub = 'open'; sfx('wake'); render(); } }))];
+  }
+  if (d.sub === 'open') {
+    return [head,
+      h('div', {class:'announce cinema'}, 'Barcha ko‘zlarini ochsin.', h('span', {class:'sub', text:'Kunduz boshlandi.'})),
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}),
+        btn('Muhokamani boshlash', { cls:'primary lg', icon:'next', id:'btn-discuss', primary:true, onClick:function(){
+          d.sub = 'discussion'; timerSet(S.settings.discussionDefault); sfx('gong'); render(); } }))];
+  }
+  if (d.sub === 'discussion') return [head].concat(stageDiscussion());
+  if (d.sub === 'vote') return [head].concat(stageVote());
+  if (d.sub === 'voteResult') {
+    return [head,
+      h('div', {class:'announce'}, d.voteMessage),
+      h('div', {class:'stage-actions'}, h('span', {class:'grow'}),
+        d.pendingWinner
+          ? btn('Natijalarni ko‘rish', { cls:'primary lg', icon:'next', id:'btn-end', primary:true, onClick:function(){ endGame(d.pendingWinner); } })
+          : btn('Tunni boshlash', { cls:'primary lg', icon:'moon', id:'btn-night', primary:true, onClick:startNextNight }))];
+  }
+  return [head];
+}
+function timerBlock(presets){
+  var seg = h('div', {class:'seg', role:'group', 'aria-label':'Vaqtni tanlash'}, presets.map(function(p){
+    return h('button', {type:'button', 'aria-pressed': String((T.unlimited && p[0] === 0) || (!T.unlimited && T.total === p[0])), text:p[1],
+      onclick:function(){ timerSet(p[0]); render(); }});
+  }));
+  return h('div', {class:'timer'},
+    h('div', {class:'clock', 'data-clock':'1', 'aria-live':'off'}),
+    h('div', {class:'actions'},
+      h('button', {type:'button', class:'btn', 'data-timer-toggle':'1', id:'timer-toggle', onclick:function(){ T.running ? timerStop() : timerStart(); }}),
+      btn('Qayta', { cls:'ghost', icon:'reset', onClick:function(){ timerSet(T.unlimited ? 0 : T.total); } }),
+      seg)
+  );
+}
+function stageDiscussion(){
+  var voting = S.settings.votingEnabled;
+  return [
+    h('div', {class:'announce'}, 'Muhokama.', h('span', {class:'sub', text:'O‘yinchilar dalil keltiradi va shubhalarini aytadi.'})),
+    timerBlock([[60,'1 daq'],[120,'2 daq'],[180,'3 daq'],[0,'Cheklanmagan']]),
+    cue('Taymer tugashi hech kimni chiqarmaydi. Bosqichni siz yakunlaysiz.' + (voting ? '' : ' Ovoz berish o‘chirilgan: kerak bo‘lsa, o‘yinchini ro‘yxatdan qo‘lda chiqaring.')),
+    h('div', {class:'stage-actions'},
+      h('span', {class:'grow'}),
+      voting
+        ? btn('Ovoz berishga o‘tish', { cls:'primary lg', icon:'ballot', id:'btn-vote', primary:true, onClick:function(){ timerStop(); startVote(null, 1); } })
+        : btn('Tunni boshlash', { cls:'primary lg', icon:'moon', id:'btn-night', primary:true, onClick:startNextNight })
+    )
+  ];
+}
+function startVote(candidates, round){
+  var d = S.game.day;
+  pushUndo(round === 1 ? 'ovoz berishni boshlash' : 'qayta ovoz berish');
+  S.game.vote = { round: round, candidates: candidates || alivePlayers().map(function(p){ return p.id; }), votes:{} };
+  d.sub = 'vote';
+  timerSet(S.settings.voteTimer);
+  if (round === 1) publicLog('Ovoz berish boshlandi.');
+  sfx('gavel');
+  render();
+}
+function stageVote(){
+  var v = S.game.vote, alive = alivePlayers();
+  var tally = tallyVotes(v);
+  var voted = alive.filter(function(p){ return v.votes[p.id] !== undefined; }).length;
+  var max = 0; Object.keys(tally).forEach(function(k){ if (tally[k] > max) max = tally[k]; });
+
+  var rows = h('div', {class:'vote-list', 'data-scroll':'votes'}, alive.map(function(p){
+    var cur = v.votes[p.id];
+    var sel = h('select', {id:'vote-'+p.id, 'aria-label':p.name + ' ovozi', onchange:function(e){
+      var val = e.target.value;
+      if (val === '') delete v.votes[p.id];
+      else v.votes[p.id] = val === 'abstain' ? 'abstain' : Number(val);
+      render();
+    }});
+    sel.appendChild(h('option', {value:'', text:'— ovoz bermagan —'}));
+    v.candidates.forEach(function(cid){
+      if (cid === p.id && !S.settings.allowSelfVote) return;
+      var c = playerById(cid);
+      var o = h('option', {value:String(cid), text:'→ ' + c.name});
+      if (cur === cid) o.selected = true;
+      sel.appendChild(o);
+    });
+    if (S.settings.allowAbstain) { var a = h('option', {value:'abstain', text:'Betaraf'}); if (cur === 'abstain') a.selected = true; sel.appendChild(a); }
+    if (cur === undefined) sel.value = '';
+    return h('div', {class:'vote-row' + (cur === undefined ? ' missing' : '')}, h('span', {class:'vn', text:p.name}), sel);
+  }));
+
+  var bars = h('div', {class:'tally'}, v.candidates.slice().sort(function(a,b){ return tally[b] - tally[a]; }).map(function(cid){
+    var c = playerById(cid), n = tally[cid];
+    return h('div', {class:'tbar' + (n > 0 && n === max ? ' lead' : '')},
+      h('div', {class:'tn'}, h('span', {text:c.name}), h('div', {class:'tr'}, h('i', {style:'width:' + (alive.length ? (n / alive.length * 100) : 0) + '%'}))),
+      h('span', {class:'tc', text:String(n)}));
+  }));
+
+  return [
+    h('div', {class:'announce'}, v.round === 1 ? 'Ovoz berish.' : 'Qayta ovoz berish.', h('span', {class:'sub', text: v.round === 1 ? 'Har bir tirik o‘yinchi kimni chiqarishni aytadi.' : 'Faqat teng ovoz olganlar orasidan tanlanadi.'})),
+    timerBlock([[30,'30 s'],[60,'1 daq'],[120,'2 daq'],[0,'Cheklanmagan']]),
+    h('div', {class:'vote-meta'},
+      h('span', null, 'Ovoz berdi: ', h('b', {text:String(voted)})),
+      h('span', null, 'Hali bermadi: ', h('b', {text:String(alive.length - voted)})),
+      h('span', null, 'Jami tirik: ', h('b', {text:String(alive.length)})),
+      S.settings.allMustVote ? h('span', {text:'Hamma ovoz berishi shart'}) : null),
+    h('div', {class:'vote-wrap'}, rows, bars),
+    h('div', {class:'stage-actions'},
+      btn('Ovoz berishni bekor qilish', { cls:'ghost', icon:'x', onClick:function(){
+        confirmAction('Ovoz berishni bekor qilish', 'Belgilangan ovozlar o‘chadi va muhokamaga qaytiladi.', 'Bekor qilish', function(){
+          pushUndo('ovoz berishni bekor qilish'); S.game.vote = null; S.game.day.sub = 'discussion'; timerSet(S.settings.discussionDefault); render(); }, true); } }),
+      btn('Ovozlarni tozalash', { cls:'ghost', icon:'reset', onClick:function(){ v.votes = {}; timerSet(S.settings.voteTimer); render(); } }),
+      h('span', {class:'grow'}),
+      btn('Ovozlarni yakunlash', { cls:'primary lg', icon:'check', id:'btn-finish-vote', primary:true, onClick:finishVote })
+    )
+  ];
+}
+function finishVote(){
+  var g = S.game, v = g.vote, d = g.day, alive = alivePlayers();
+  var missing = alive.filter(function(p){ return v.votes[p.id] === undefined; });
+  if (S.settings.allMustVote && missing.length) {
+    toast(missing.length + ' o‘yinchi hali ovoz bermadi: ' + missing.map(function(p){ return p.name; }).join(', ') + '.', 'err');
+    return;
+  }
+  var tally = tallyVotes(v), max = 0, top = [];
+  Object.keys(tally).forEach(function(k){ if (tally[k] > max) max = tally[k]; });
+  if (max > 0) Object.keys(tally).forEach(function(k){ if (tally[k] === max) top.push(Number(k)); });
+  var summary = v.candidates.filter(function(id){ return tally[id] > 0; }).map(function(id){ return playerById(id).name + ': ' + tally[id]; }).join(', ');
+  hostLog('Ovozlar (' + v.round + '-tur): ' + (summary || 'hech kim ovoz olmadi') + '.');
+
+  if (top.length > 1) {
+    var canRevote = S.settings.tieRule === 'revote' && S.settings.revoteEnabled && v.round === 1;
+    if (canRevote) {
+      publicLog('Ovozlar teng: ' + top.map(function(id){ return playerById(id).name; }).join(', ') + '. Qayta ovoz berish.');
+      timerStop();
+      sfx('tie');
+      startVote(top, 2);
+      toast('Ovozlar teng — teng ovoz olganlar orasida qayta ovoz berish.', 'warn');
+      return;
+    }
+  }
+  pushUndo('ovozlarni yakunlash');
+  timerStop();
+  var msg;
+  if (max === 0) msg = 'Hech kim ovoz olmadi. Bu kun hech kim chiqarilmadi.';
+  else if (top.length > 1) msg = 'Ovozlar teng (' + top.map(function(id){ return playerById(id).name; }).join(', ') + '). Bu kun hech kim chiqarilmadi.';
+  else {
+    var p = playerById(top[0]);
+    eliminate(p, 'vote');
+    msg = p.name + ' ovoz berish natijasida o‘yindan chiqarildi (' + max + ' ovoz).';
+    if (S.settings.revealRoleOnVote) msg += ' Uning roli: ' + roleName(p.role) + '.';
+    hostLog(p.name + ' (' + roleName(p.role) + ') ovoz bilan chiqarildi.');
+  }
+  publicLog(msg);
+  sfx(max > 0 && top.length === 1 ? 'eliminate' : 'tie');
+  d.voteMessage = msg;
+  d.sub = 'voteResult';
+  d.pendingWinner = computeWinner();
+  render();
+}
+function startNextNight(){
+  pushUndo('tunni boshlash');
+  timerStop();
+  S.game.round++;
+  S.game.phase = 'night';
+  S.game.night = newNight('intro');
+  S.game.day = null; S.game.vote = null;
+  sfx('nightfall');
+  render();
+}
+function manualEliminate(p){
+  var d = S.game.day;
+  confirmAction('O‘yinchini chiqarish', p.name + ' boshlovchi qarori bilan o‘yindan chiqariladi. Bu harakatni «Bekor qilish» bilan qaytarish mumkin.', 'Chiqarish', function(){
+    pushUndo(p.name + 'ni chiqarish');
+    eliminate(p, 'host');
+    sfx('eliminate');
+    publicLog(p.name + ' boshlovchi qarori bilan o‘yindan chiqarildi.');
+    hostLog(p.name + ' (' + roleName(p.role) + ') boshlovchi tomonidan chiqarildi.');
+    var w = computeWinner();
+    if (w) { endGame(w); return; }
+    if (d && S.game.vote) { delete S.game.vote.votes[p.id]; S.game.vote.candidates = S.game.vote.candidates.filter(function(id){ return id !== p.id; }); }
+    render();
+  }, true);
+}
+function endGame(w){
+  timerStop();
+  S.game.winner = w;
+  S.game.lastRound = S.game.round;
+  sfx(w === 'mafia' ? 'winMafia' : 'winTown');
+  hostLog('O‘yin yakunlandi: ' + (w === 'mafia' ? 'mafiya' : 'shahar') + ' g‘alabasi.');
+  S.screen = 'end';
+  render();
+  window.scrollTo(0,0);
+}
+
+/* ----- O'yinchilar ro'yxati ----- */
+function viewPlayerList(){
+  var g = S.game, n = g.night, v = g.vote;
+  var canKick = g.phase === 'day' && g.day && (g.day.sub === 'discussion' || g.day.sub === 'voteResult' || g.day.sub === 'open');
+  var tally = v ? tallyVotes(v) : null;
+  var list = h('div', {'data-scroll':'players'}, S.players.map(function(p){
+    var r = roleDef(p.role);
+    var meta = [
+      h('span', {class:'chip secret r-' + p.role}, icon(r.icon), r.name()),
+      h('span', {class:'chip ' + (p.alive ? 'alive' : 'dead'), text: p.alive ? 'Tirik' : 'Chiqqan · ' + p.outRound + '-r'})
+    ];
+    if (g.phase === 'night') {
+      if (n.mafiaTarget === p.id) meta.push(h('span', {class:'chip secret tgt-k', text:'Mafiya nishoni'}));
+      if (n.doctorTarget === p.id) meta.push(h('span', {class:'chip secret tgt-d', text:'Himoyada'}));
+      if (n.sheriffTarget === p.id) meta.push(h('span', {class:'chip secret tgt-s', text:'Tekshirildi'}));
+    }
+    if (v && p.alive) {
+      var my = v.votes[p.id];
+      meta.push(h('span', {class:'chip vote', text: my === undefined ? 'Ovoz bermagan' : my === 'abstain' ? 'Betaraf' : '→ ' + playerById(my).name}));
+      if (tally && tally.hasOwnProperty(p.id) && tally[p.id] > 0) meta.push(h('span', {class:'chip tgt-k', text: tally[p.id] + ' ovoz'}));
+    }
+    return h('div', {class:'prow' + (p.alive ? '' : ' out')},
+      h('span', {class:'seat', text:String(p.id + 1)}),
+      h('div', {class:'pmain'}, h('span', {class:'pname', text:p.name}), h('div', {class:'pmeta'}, meta)),
+      canKick && p.alive ? btn('', { cls:'sm ghost icon', icon:'out', aria:p.name + 'ni chiqarish', title:'Boshlovchi qarori bilan chiqarish', onClick:function(){ manualEliminate(p); } }) : h('span')
+    );
+  }));
+  return h('div', {class:'panel plist'},
+    h('div', {class:'plist-head'}, h('h3', {text:'O‘yinchilar'}), h('span', {class:'eyebrow', text: alivePlayers().length + ' tirik'})),
+    list);
+}
+function viewLogs(){
+  var g = S.game, tab = S.ui.logTab;
+  var items = (tab === 'public' ? g.publicLog : g.hostLog).slice().reverse();
+  var tabBtn = function(id, label){
+    return h('button', {type:'button', role:'tab', id:'tab-'+id, 'aria-selected': String(tab === id), onclick:function(){ S.ui.logTab = id; render(); }, text:label});
+  };
+  return h('div', {class:'panel logs'},
+    h('div', {class:'tabs', role:'tablist'}, tabBtn('public', 'Ommaviy jurnal'), tabBtn('host', 'Maxfiy jurnal')),
+    h('ul', {class:'loglist' + (tab === 'host' ? ' secret' : ''), 'data-scroll':'log-' + tab},
+      items.length ? items.map(function(it){
+        return h('li', null, h('span', {class:'lr', text: it.r + '-' + (it.p === 'night' ? 'T' : 'K')}), h('span', {text:it.t}));
+      }) : h('li', null, h('span', {class:'empty', text:'Hozircha yozuv yo‘q.'})))
+  );
+}
+
+/* ---------- Yakun ---------- */
+function viewEnd(){
+  var g = S.game, w = g.winner;
+  var causeTxt = { night:'Tunda', vote:'Ovoz bilan', host:'Boshlovchi qarori' };
+  var rows = S.players.slice().sort(function(a,b){ return (teamOf(a) === w ? 0 : 1) - (teamOf(b) === w ? 0 : 1) || a.id - b.id; }).map(function(p){
+    var r = roleDef(p.role);
+    return h('tr', {class: teamOf(p) === w ? 'winner' : ''},
+      h('td', null, h('b', {text:p.name})),
+      h('td', null, h('span', {class:'chip r-' + p.role}, icon(r.icon), r.name())),
+      h('td', {class:'muted', text:TEAM_NAME[r.team]}),
+      h('td', {text: p.alive ? 'Tirik qoldi' : causeTxt[p.outCause] || 'Chiqqan'}),
+      h('td', {class:'mono', text: p.alive ? '—' : String(p.outRound)})
+    );
+  });
+  return h('div', {class:'page'},
+    h('div', {class:'panel end-hero ' + w},
+      h('span', {class:'eyebrow', text:'O‘yin yakunlandi'}),
+      h('h1', {text: w === 'mafia' ? 'Mafiya g‘alaba qozondi' : 'Shahar g‘alaba qozondi'}),
+      h('p', {class:'muted', text: (w === 'mafia' ? 'Mafiya shaharni egalladi.' : 'Barcha mafiya a’zolari fosh etildi.') + ' O‘yin ' + g.lastRound + ' raund davom etdi.'})
+    ),
+    h('div', {class:'panel'},
+      h('div', {class:'table-wrap'},
+        h('table', null,
+          h('thead', null, h('tr', null, ['O‘yinchi','Rol','Jamoa','Holat','Chiqqan raund'].map(function(t){ return h('th', {text:t}); }))),
+          h('tbody', null, rows)))
+    ),
+    h('div', {class:'actions'},
+      btn('Bekor qilish', { cls:'ghost', icon:'undo', disabled: undoStack.length === 0, onClick:undo, title:'Oxirgi harakatni qaytarib, o‘yinni davom ettirish' }),
+      btn('Eksport', { cls:'ghost', icon:'download', onClick:exportGame }),
+      h('span', {class:'grow'}),
+      btn('Bosh menyu', { icon:'back', onClick:function(){ go('menu'); } }),
+      btn('Shu ismlar bilan yangi o‘yin', { cls:'primary', icon:'shuffle', id:'btn-again', onClick:function(){
+        S.setup.names = S.players.slice().sort(function(a,b){ return a.id - b.id; }).map(function(p){ return p.name; });
+        while (S.setup.names.length < S.setup.count) S.setup.names.push('');
+        S.setup.names = S.setup.names.slice(0, S.setup.count);
+        store.del(STORE_GAME);
+        S.game = null; S.players = []; S.deal = null; undoStack = [];
+        go('setup'); } })
+    )
+  );
+}
+
+/* =====================================================================
+   8. EKSPORT / IMPORT
+   ===================================================================== */
+function exportGame(){
+  try {
+    var data = JSON.stringify(snapshotAll(), null, 2);
+    var blob = new Blob([data], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = h('a', {href:url, download:'mafia-noir-' + (S.game ? S.game.round + '-raund' : 'holat') + '.json'});
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    toast('O‘yin holati JSON faylga saqlandi.', 'ok');
+  } catch(e) { toast('Eksport qilib bo‘lmadi: ' + e.message, 'err'); }
+}
+function openImport(){ var f = $('#import-file'); f.value = ''; f.click(); }
+$('#import-file').addEventListener('change', function(e){
+  var file = e.target.files && e.target.files[0];
+  if (!file) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    try { loadSnapshot(JSON.parse(rd.result)); render(); toast('O‘yin fayldan tiklandi.', 'ok'); }
+    catch(err) { toast('Faylni o‘qib bo‘lmadi: ' + err.message, 'err'); }
+  };
+  rd.readAsText(file);
+});
+
+/* =====================================================================
+   9. GLOBAL HODISALAR
+   ===================================================================== */
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && $('#modal-root').firstChild) { e.preventDefault(); closeModal(); }
+});
+window.addEventListener('beforeunload', function(e){
+  if (S.screen === 'reveal' || S.screen === 'host') { persist(); e.preventDefault(); e.returnValue = ''; }
+});
+
+/* Brauzer ovozni faqat foydalanuvchi harakatidan keyin ruxsat beradi */
+function unlockAudio(){ if (audioInit()) updateMusic(); }
+document.addEventListener('pointerdown', unlockAudio, true);
+document.addEventListener('keydown', unlockAudio, true);
+/* Tugma bosilganda yengil tovush */
+document.addEventListener('click', function(e){
+  var b = e.target.closest && e.target.closest('button');
+  if (b && !b.disabled && !b.classList.contains('dock-btn')) sfx('click');
+}, true);
+/* M — musiqani yoqish/o'chirish (matn maydonida emas) */
+document.addEventListener('keydown', function(e){
+  var tag = (document.activeElement && document.activeElement.tagName) || '';
+  if ((e.key === 'm' || e.key === 'M') && !e.ctrlKey && !e.metaKey && !e.altKey && tag !== 'INPUT' && tag !== 'SELECT' && tag !== 'TEXTAREA') {
+    setAudio('musicOn', !S.settings.musicOn);
+    toast(S.settings.musicOn ? 'Musiqa yoqildi.' : 'Musiqa o‘chirildi.', 'ok');
+  }
+});
+
+/* Test va kengaytirish uchun ochiq interfeys */
+window.MafiaNoir = { state:function(){ return S; }, audio:A, sfx:sfx, ROLES:ROLES, shuffleFY:shuffleFY, computeWinner:computeWinner, render:render };
+
+render();
+})();
+</script>
+</body>
+</html>
